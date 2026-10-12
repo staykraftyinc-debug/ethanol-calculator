@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Octane & Ethanol Blend Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gaugeBg: '#0b0d13',
+            panelBg: '#131722',
+            panelCard: '#1a1f2e',
+            accentOrange: '#ff5500',
+            accentAmber: '#f59e0b',
+            accentCyan: '#06b6d4',
+            accentGreen: '#10b981',
+            accentRed: '#ef4444'
+          },
+          fontFamily: {
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #07090e;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .carbon-pattern {
+      background: linear-gradient(135deg, #11141d 25%, #181d2a 25%, #181d2a 50%, #11141d 50%, #11141d 75%, #181d2a 75%, #181d2a 100%);
+      background-size: 10px 10px;
+    }
+    .bezel-metal {
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: #252d3d;
+      height: 7px;
+      border-radius: 9999px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ff5500;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(255, 85, 0, 0.85);
+      border: 2px solid #ffffff;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-5">
+
+  <header class="w-full max-w-md flex items-center justify-between py-3 mb-2 border-b border-gray-800">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-accentOrange to-accentAmber flex items-center justify-center shadow-lg text-black font-black text-xl">
+        <i class="fa-solid fa-gauge-high"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-black tracking-wider uppercase text-white flex items-center gap-1.5">
+          OCTANE<span class="text-accentOrange">LAB</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-accentOrange/20 text-accentOrange border border-accentOrange/40 font-mono">PRO</span>
+        </h1>
+        <p class="text-[11px] text-gray-400">Flex Fuel & E85 Ratio Calculator</p>
+      </div>
+    </div>
+    
+    <!-- Unit Selector -->
+    <div class="flex items-center bg-gray-900 border border-gray-800 rounded-xl p-1 text-xs">
+      <button id="unitGalBtn" class="px-3 py-1 rounded-lg font-bold text-white bg-accentOrange transition-all">GAL</button>
+      <button id="unitLBtn" class="px-3 py-1 rounded-lg font-bold text-gray-400 hover:text-white transition-all">L</button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-md space-y-3.5">
+
+    <div class="carbon-pattern bezel-metal rounded-2xl p-4 relative overflow-hidden">
+      <div class="absolute -top-12 -right-12 w-36 h-36 bg-accentOrange/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Top Primary Metric Dials -->
+      <div class="grid grid-cols-2 gap-3 mb-3.5">
+        <div class="bg-gray-950/80 border border-gray-800/80 p-3 rounded-xl flex flex-col items-center text-center">
+          <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-sparkles text-accentCyan text-xs"></i> Est. AKI Octane
+          </span>
+          <div class="text-3xl font-extrabold text-accentCyan font-mono tracking-tight my-1" id="outOctane">98.2</div>
+          <span class="text-[10px] text-gray-500">Pump (R+M)/2</span>
+        </div>
+        <div class="bg-gray-950/80 border border-gray-800/80 p-3 rounded-xl flex flex-col items-center text-center">
+          <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-fire text-accentOrange text-xs"></i> Final Blend
+          </span>
+          <div class="text-3xl font-extrabold text-accentOrange font-mono tracking-tight my-1" id="outBlend">E30</div>
+          <span class="text-[10px] text-gray-500 font-mono" id="outTotalVolume">13.2 / 13.2 Gal</span>
+        </div>
+      </div>
+
+      <!-- Pump Requirements: Gallons/Liters to Add -->
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <!-- E85 requirement -->
+        <div class="p-3 rounded-xl bg-accentOrange/10 border border-accentOrange/40">
+          <div class="flex items-center justify-between text-xs font-bold text-accentOrange">
+            <span>ADD E85</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-accentOrange/20" id="badgePumpE85">85%</span>
+          </div>
+          <div class="mt-1 flex items-baseline">
+            <span class="text-2xl font-black font-mono text-white" id="outE85Vol">3.52</span>
+            <span class="ml-1 text-xs text-gray-400 unitLabel">gal</span>
+          </div>
+          <div class="text-[10px] text-accentOrange/80 mt-0.5" id="outE85LitersSub">≈ 13.3 Liters</div>
+        </div>
+
+        <!-- 93 Pump requirement -->
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-700/70">
+          <div class="flex items-center justify-between text-xs font-bold text-gray-300">
+            <span>ADD 93 OCT</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-gray-800 text-gray-400" id="badgePump93">10%</span>
+          </div>
+          <div class="mt-1 flex items-baseline">
+            <span class="text-2xl font-black font-mono text-white" id="out93Vol">6.68</span>
+            <span class="ml-1 text-xs text-gray-400 unitLabel">gal</span>
+          </div>
+          <div class="text-[10px] text-gray-400 mt-0.5" id="out93LitersSub">≈ 25.3 Liters</div>
+        </div>
+      </div>
+
+      <!-- Stacked Tank Volume Level Visualizer -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between text-[11px] text-gray-400 font-mono">
+          <span>Tank Capacity Fill</span>
+          <span id="outFreeSpace">0.0 gal empty</span>
+        </div>
+        <div class="w-full h-5 bg-gray-950 rounded-lg p-0.5 flex overflow-hidden border border-gray-800">
+          <div id="barCurrent" class="h-full bg-blue-500 transition-all duration-300 rounded-l" style="width: 25%" title="In Tank"></div>
+          <div id="barE85" class="h-full bg-accentOrange transition-all duration-300" style="width: 27%" title="E85 Added"></div>
+          <div id="bar93" class="h-full bg-emerald-500 transition-all duration-300" style="width: 48%" title="93 Added"></div>
+        </div>
+
+        <!-- Interactive Legend -->
+        <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1">
+          <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block mr-1"></span>Current (<span id="legendCurVal">3.0</span>)</span>
+          <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-accentOrange inline-block mr-1"></span>+E85 (<span id="legendE85Val">3.5</span>)</span>
+          <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-1"></span>+93 (<span id="legend93Val">6.7</span>)</span>
+        </div>
+      </div>
+
+      <!-- Contextual Warning Alert -->
+      <div id="alertBanner" class="hidden mt-3 p-2.5 rounded-xl bg-accentRed/20 border border-accentRed/50 text-red-200 text-xs flex items-center space-x-2">
+        <i class="fa-solid fa-triangle-exclamation text-accentRed text-sm"></i>
+        <span id="alertMessage">Target blend cannot be reached.</span>
+      </div>
+    </div>
+
+    <div class="bg-panelCard bezel-metal rounded-2xl p-4 shadow-lg">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-xs font-bold uppercase tracking-wider text-gray-300">Target Ethanol Goal</label>
+        <span class="text-accentOrange font-mono font-black text-sm" id="targetBlendBadge">E30 (30%)</span>
+      </div>
+
+      <!-- Quick Preset Target Buttons -->
+      <div class="grid grid-cols-5 gap-1.5 mb-3">
+        <button onclick="setTargetBlend(30)" class="target-btn py-2 text-xs font-extrabold rounded-lg border border-accentOrange bg-accentOrange/20 text-white transition-all">E30</button>
+        <button onclick="setTargetBlend(35)" class="target-btn py-2 text-xs font-extrabold rounded-lg border border-gray-700 bg-gray-900 text-gray-300 transition-all">E35</button>
+        <button onclick="setTargetBlend(40)" class="target-btn py-2 text-xs font-extrabold rounded-lg border border-gray-700 bg-gray-900 text-gray-300 transition-all">E40</button>
+        <button onclick="setTargetBlend(50)" class="target-btn py-2 text-xs font-extrabold rounded-lg border border-gray-700 bg-gray-900 text-gray-300 transition-all">E50</button>
+        <button onclick="setTargetBlend(85)" class="target-btn py-2 text-xs font-extrabold rounded-lg border border-gray-700 bg-gray-900 text-gray-300 transition-all">E85</button>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <span class="text-xs text-gray-500 font-mono">E10</span>
+        <input type="range" id="targetBlendInput" min="10" max="85" value="30" step="1">
+        <span class="text-xs text-gray-500 font-mono">E85</span>
+      </div>
+    </div>
+
+    <div class="bg-panelCard bezel-metal rounded-2xl p-4 shadow-lg space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex flex-col">
+          <label class="text-xs font-bold uppercase tracking-wider text-gray-300">Current Fuel in Tank</label>
+          <span class="text-[10px] text-gray-400" id="gaugeModeDesc">Switch between exact volume & gauge needle %</span>
+        </div>
+
+        <!-- Mode Toggle: Volume vs Gauge Percentage -->
+        <div class="flex bg-gray-900 border border-gray-800 rounded-lg p-0.5 text-xs font-semibold">
+          <button id="modeVolBtn" class="px-2 py-1 rounded bg-accentOrange text-white font-bold transition-all">Volume</button>
+          <button id="modePctBtn" class="px-2 py-1 rounded text-gray-400 hover:text-white transition-all">Gauge %</button>
+        </div>
+      </div>
+
+      <!-- Volume Input View (Active by default) -->
+      <div id="volumeInputContainer" class="flex items-center justify-between pt-1">
+        <span class="text-xs text-gray-400">Fuel Remaining:</span>
+        <div class="flex items-center space-x-1.5">
+          <input type="number" id="currentFuelVolInput" step="0.1" min="0" max="100" value="3.0" 
+            class="w-24 bg-gray-900 border border-gray-700 text-right font-mono text-sm px-2.5 py-1.5 rounded-lg text-white focus:outline-none focus:border-accentOrange">
+          <span class="text-xs text-gray-400 unitLabel font-mono">gal</span>
+        </div>
+      </div>
+
+      <!-- Gauge % Input View (Slider + Percentage) -->
+      <div id="pctInputContainer" class="hidden space-y-2 pt-1">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-300">Fuel Gauge Level:</span>
+          <span class="text-sm font-bold font-mono text-accentOrange" id="gaugePctLabel">25% (1/4 Tank)</span>
+        </div>
+        <input type="range" id="currentGaugeSlider" min="0" max="100" value="25" step="1">
+        <div class="flex justify-between text-[10px] text-gray-500 font-mono">
+          <span>E (0%)</span>
+          <span>1/4 (25%)</span>
+          <span>1/2 (50%)</span>
+          <span>3/4 (75%)</span>
+          <span>F (100%)</span>
+        </div>
+      </div>
+
+      <!-- Quick Gauge Preset Buttons -->
+      <div class="grid grid-cols-4 gap-1.5 pt-1">
+        <button onclick="setFuelGaugePreset(0)" class="py-1.5 text-[11px] font-bold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:border-gray-600">Empty (0%)</button>
+        <button onclick="setFuelGaugePreset(12.5)" class="py-1.5 text-[11px] font-bold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:border-gray-600">1/8 Tank</button>
+        <button onclick="setFuelGaugePreset(25)" class="py-1.5 text-[11px] font-bold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:border-gray-600">1/4 Tank</button>
+        <button onclick="setFuelGaugePreset(50)" class="py-1.5 text-[11px] font-bold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:border-gray-600">1/2 Tank</button>
+      </div>
+    </div>
+
+    <div class="bg-panelCard bezel-metal rounded-2xl p-4 shadow-lg space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex flex-col">
+          <label class="text-xs font-bold uppercase tracking-wider text-gray-300">Current Ethanol in Tank</label>
+          <span class="text-[10px] text-gray-500">Fluctuates based on previous mix or pump gas</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <input type="number" id="currentEthanolInput" min="0" max="85" value="10" 
+            class="w-16 bg-gray-900 border border-gray-700 text-right font-mono text-sm px-2 py-1 rounded-lg text-accentCyan font-bold focus:outline-none focus:border-accentOrange">
+          <span class="text-xs text-gray-400 font-mono">%</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <span class="text-xs text-gray-500 font-mono">0%</span>
+        <input type="range" id="currentEthSlider" min="0" max="85" value="10" step="1">
+        <span class="text-xs text-gray-500 font-mono">85%</span>
+      </div>
+
+      <div class="grid grid-cols-4 gap-1.5">
+        <button onclick="setCurrentEthQuick(10)" class="py-1 text-[11px] font-semibold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:text-white">Pure 93 (E10)</button>
+        <button onclick="setCurrentEthQuick(30)" class="py-1 text-[11px] font-semibold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:text-white">Past E30</button>
+        <button onclick="setCurrentEthQuick(40)" class="py-1 text-[11px] font-semibold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:text-white">Past E40</button>
+        <button onclick="setCurrentEthQuick(50)" class="py-1 text-[11px] font-semibold bg-gray-900 border border-gray-800 rounded-lg text-gray-300 hover:text-white">Past E50</button>
+      </div>
+    </div>
+
+    <div class="bg-panelCard bezel-metal rounded-2xl p-4 shadow-lg space-y-3">
+      <div class="flex items-center justify-between">
+        <label class="text-xs font-bold uppercase tracking-wider text-gray-300">Total Tank Capacity</label>
+        <div class="flex items-center space-x-1">
+          <input type="number" id="tankCapacityInput" step="0.1" min="1" max="100" value="13.2" 
+            class="w-20 bg-gray-900 border border-gray-700 text-right font-mono text-sm px-2 py-1 rounded-lg text-white focus:outline-none focus:border-accentOrange">
+          <span class="text-xs text-gray-400 unitLabel font-mono">gal</span>
+        </div>
+      </div>
+
+      <!-- Vehicle Preset Dropdown -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center text-[10px] text-gray-400">
+          <span class="uppercase tracking-wider font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-car text-accentOrange"></i> Vehicle Presets
+          </span>
+          <span class="text-gray-500 font-mono" id="presetCarCapacityLabel">Custom / Manual</span>
+        </div>
+        <div class="relative">
+          <select id="vehiclePresetSelect" class="w-full bg-gray-900 border border-gray-700 hover:border-gray-600 text-gray-200 text-xs rounded-xl px-3 py-2.5 font-medium appearance-none focus:outline-none focus:border-accentOrange pr-8 cursor-pointer">
+            <option value="custom" selected>Select a Tuner Platform...</option>
+            <optgroup label="Honda / Acura">
+              <option value="12.4">Honda Civic Type R (FK8 / FL5) - 12.4 gal / 47 L</option>
+              <option value="12.4">Honda Civic Si (10th / 11th Gen) - 12.4 gal / 47 L</option>
+              <option value="12.4">Acura Integra Type S (DE5) - 12.4 gal / 47 L</option>
+            </optgroup>
+            <optgroup label="BMW / Toyota (B58 / S58)">
+              <option value="15.6">BMW M340i / 340i (G20 / F30 B58) - 15.6 gal / 59 L</option>
+              <option value="15.6">BMW M2 / M3 / M4 (F87 / F80 / G80) - 15.6 gal / 59 L</option>
+              <option value="13.7">Toyota GR Supra 3.0 (A90 / B58) - 13.7 gal / 52 L</option>
+            </optgroup>
+            <optgroup label="Volkswagen / Audi (EA888 / 2.5T)">
+              <option value="14.5">VW Golf R / GTI (Mk7 / Mk8) - 14.5 gal / 55 L</option>
+              <option value="14.5">Audi S3 / RS3 (8V / 8Y) - 14.5 gal / 55 L</option>
+            </optgroup>
+            <optgroup label="Subaru / Toyota">
+              <option value="15.9">Subaru WRX / STI (VA / VB) - 15.9 gal / 60 L</option>
+              <option value="13.2">Toyota GR86 / Subaru BRZ (FA24) - 13.2 gal / 50 L</option>
+              <option value="13.2">Toyota GR Corolla (G16E-GTS) - 13.2 gal / 50 L</option>
+            </optgroup>
+            <optgroup label="Ford / American Muscle">
+              <option value="16.0">Ford Mustang GT / EcoBoost (S550 / S650) - 16.0 gal / 60.5 L</option>
+              <option value="12.4">Ford Fiesta ST - 12.4 gal / 47 L</option>
+              <option value="13.9">Ford Focus ST / RS - 13.9 gal / 52.6 L</option>
+            </optgroup>
+            <optgroup label="Hyundai / Nissan">
+              <option value="12.4">Hyundai Elantra N (2.0T) - 12.4 gal / 47 L</option>
+              <option value="19.0">Nissan Z (RZ34) / 370Z (VR30 / VQ) - 19.0 gal / 72 L</option>
+            </optgroup>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-panelBg bezel-metal rounded-2xl p-3.5 shadow-sm">
+      <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer list-none text-xs text-gray-400 font-bold uppercase tracking-wider">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-accentOrange"></i>
+            Pump Station Ethanol Specs (Fluctuations)
+          </span>
+          <span class="transition-transform group-open:rotate-180">
+            <i class="fa-solid fa-chevron-down text-gray-500"></i>
+          </span>
+        </summary>
+        
+        <div class="pt-3 mt-2 border-t border-gray-800/80 space-y-3 text-xs text-gray-300">
+          <p class="text-[11px] text-gray-500 leading-relaxed">
+            E85 stations vary between summer and winter blends (often 70% to 85%). Adjust here if tested with an ethanol test kit.
+          </p>
+
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-semibold">Station E85 Tested %:</span>
+              <div class="text-[10px] text-gray-500">Winter blends can drop to ~70%</div>
+            </div>
+            <div class="flex items-center space-x-1">
+              <input type="number" id="pumpE85EthInput" min="50" max="95" value="85" class="w-16 bg-gray-900 border border-gray-700 text-right font-mono p-1 rounded-lg text-white font-bold">
+              <span>%</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-semibold">Station 93 Octane Ethanol %:</span>
+              <div class="text-[10px] text-gray-500">Usually 10% (E10 standard)</div>
+            </div>
+            <div class="flex items-center space-x-1">
+              <input type="number" id="pump93EthInput" min="0" max="15" value="10" class="w-16 bg-gray-900 border border-gray-700 text-right font-mono p-1 rounded-lg text-white font-bold">
+              <span>%</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span>Pure E85 AKI Octane Rating:</span>
+            <div class="flex items-center space-x-1">
+              <input type="number" id="octaneE85Input" min="95" max="112" value="105" class="w-16 bg-gray-900 border border-gray-700 text-right font-mono p-1 rounded-lg text-white">
+              <span>AKI</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span>Base 93 Octane Rating:</span>
+            <div class="flex items-center space-x-1">
+              <input type="number" id="octane93Input" min="91" max="95" value="93" class="w-16 bg-gray-900 border border-gray-700 text-right font-mono p-1 rounded-lg text-white">
+              <span>AKI</span>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2.5 pb-8 pt-1">
+      <button onclick="resetDefaults()" class="flex-1 py-3 px-4 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all">
+        <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+      </button>
+      <button onclick="copyMixRecipe()" class="flex-1 py-3 px-4 rounded-xl bg-accentOrange hover:bg-orange-600 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-accentOrange/30 active:scale-95 transition-all">
+        <i class="fa-solid fa-copy"></i> Copy Mix
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    let isMetric = false; // false = Gallon, true = Liter
+    const GALLON_TO_LITER = 3.78541;
+    let inputMode = 'volume'; // 'volume' or 'percentage'
+
+    // DOM Elements
+    const unitGalBtn = document.getElementById('unitGalBtn');
+    const unitLBtn = document.getElementById('unitLBtn');
+    const unitLabels = document.querySelectorAll('.unitLabel');
+
+    const modeVolBtn = document.getElementById('modeVolBtn');
+    const modePctBtn = document.getElementById('modePctBtn');
+    const volumeInputContainer = document.getElementById('volumeInputContainer');
+    const pctInputContainer = document.getElementById('pctInputContainer');
+    const gaugePctLabel = document.getElementById('gaugePctLabel');
+    const currentGaugeSlider = document.getElementById('currentGaugeSlider');
+
+    const tankCapacityInput = document.getElementById('tankCapacityInput');
+    const vehiclePresetSelect = document.getElementById('vehiclePresetSelect');
+    const presetCarCapacityLabel = document.getElementById('presetCarCapacityLabel');
+    const currentFuelVolInput = document.getElementById('currentFuelVolInput');
+    const currentEthanolInput = document.getElementById('currentEthanolInput');
+    const currentEthSlider = document.getElementById('currentEthSlider');
+
+    const targetBlendInput = document.getElementById('targetBlendInput');
+    const targetBlendBadge = document.getElementById('targetBlendBadge');
+
+    const pumpE85EthInput = document.getElementById('pumpE85EthInput');
+    const pump93EthInput = document.getElementById('pump93EthInput');
+    const octaneE85Input = document.getElementById('octaneE85Input');
+    const octane93Input = document.getElementById('octane93Input');
+
+    const badgePumpE85 = document.getElementById('badgePumpE85');
+    const badgePump93 = document.getElementById('badgePump93');
+
+    const outOctane = document.getElementById('outOctane');
+    const outBlend = document.getElementById('outBlend');
+    const outE85Vol = document.getElementById('outE85Vol');
+    const out93Vol = document.getElementById('out93Vol');
+    const outE85LitersSub = document.getElementById('outE85LitersSub');
+    const out93LitersSub = document.getElementById('out93LitersSub');
+    const outTotalVolume = document.getElementById('outTotalVolume');
+    const outFreeSpace = document.getElementById('outFreeSpace');
+
+    const barCurrent = document.getElementById('barCurrent');
+    const barE85 = document.getElementById('barE85');
+    const bar93 = document.getElementById('bar93');
+    const legendCurVal = document.getElementById('legendCurVal');
+    const legendE85Val = document.getElementById('legendE85Val');
+    const legend93Val = document.getElementById('legend93Val');
+
+    const alertBanner = document.getElementById('alertBanner');
+    const alertMessage = document.getElementById('alertMessage');
+
+    // Unit Conversion Handlers
+    unitGalBtn.addEventListener('click', () => setUnit(false));
+    unitLBtn.addEventListener('click', () => setUnit(true));
+
+    function setUnit(metric) {
+      if (isMetric === metric) return;
+      isMetric = metric;
+
+      if (isMetric) {
+        unitLBtn.classList.replace('text-gray-400', 'text-white');
+        unitLBtn.classList.add('bg-accentOrange');
+        unitGalBtn.classList.remove('bg-accentOrange', 'text-white');
+        unitGalBtn.classList.add('text-gray-400');
+
+        tankCapacityInput.value = (parseFloat(tankCapacityInput.value) * GALLON_TO_LITER).toFixed(1);
+        currentFuelVolInput.value = (parseFloat(currentFuelVolInput.value) * GALLON_TO_LITER).toFixed(1);
+        unitLabels.forEach(el => el.textContent = 'L');
+      } else {
+        unitGalBtn.classList.replace('text-gray-400', 'text-white');
+        unitGalBtn.classList.add('bg-accentOrange');
+        unitLBtn.classList.remove('bg-accentOrange', 'text-white');
+        unitLBtn.classList.add('text-gray-400');
+
+        tankCapacityInput.value = (parseFloat(tankCapacityInput.value) / GALLON_TO_LITER).toFixed(1);
+        currentFuelVolInput.value = (parseFloat(currentFuelVolInput.value) / GALLON_TO_LITER).toFixed(1);
+        unitLabels.forEach(el => el.textContent = 'gal');
+      }
+      calculate();
+    }
+
+    // Input Mode Switching (Volume vs Gauge %)
+    modeVolBtn.addEventListener('click', () => setInputMode('volume'));
+    modePctBtn.addEventListener('click', () => setInputMode('percentage'));
+
+    function setInputMode(mode) {
+      inputMode = mode;
+      if (mode === 'volume') {
+        modeVolBtn.classList.replace('text-gray-400', 'text-white');
+        modeVolBtn.classList.add('bg-accentOrange');
+        modePctBtn.classList.remove('bg-accentOrange', 'text-white');
+        modePctBtn.classList.add('text-gray-400');
+
+        volumeInputContainer.classList.remove('hidden');
+        pctInputContainer.classList.add('hidden');
+      } else {
+        modePctBtn.classList.replace('text-gray-400', 'text-white');
+        modePctBtn.classList.add('bg-accentOrange');
+        modeVolBtn.classList.remove('bg-accentOrange', 'text-white');
+        modeVolBtn.classList.add('text-gray-400');
+
+        volumeInputContainer.classList.add('hidden');
+        pctInputContainer.classList.remove('hidden');
+
+        // Sync slider from current volume
+        const tankCap = parseFloat(tankCapacityInput.value) || 1;
+        const currentVol = parseFloat(currentFuelVolInput.value) || 0;
+        const pct = Math.min(100, Math.max(0, Math.round((currentVol / tankCap) * 100)));
+        currentGaugeSlider.value = pct;
+        updateGaugeLabel(pct);
+      }
+      calculate();
+    }
+
+    function updateGaugeLabel(pct) {
+      let fractionStr = '';
+      if (pct === 0) fractionStr = '(Empty)';
+      else if (pct <= 15) fractionStr = '(~1/8 Tank)';
+      else if (pct <= 30) fractionStr = '(~1/4 Tank)';
+      else if (pct <= 45) fractionStr = '(~3/8 Tank)';
+      else if (pct <= 60) fractionStr = '(~1/2 Tank)';
+      else if (pct <= 80) fractionStr = '(~3/4 Tank)';
+      else fractionStr = '(~Full)';
+
+      gaugePctLabel.textContent = `${pct}% ${fractionStr}`;
+    }
+
+    currentGaugeSlider.addEventListener('input', (e) => {
+      const pct = parseFloat(e.target.value);
+      updateGaugeLabel(pct);
+      const tankCap = parseFloat(tankCapacityInput.value) || 0;
+      currentFuelVolInput.value = ((tankCap * pct) / 100).toFixed(1);
+      calculate();
+    });
+
+    function setFuelGaugePreset(pct) {
+      currentGaugeSlider.value = pct;
+      updateGaugeLabel(pct);
+      const tankCap = parseFloat(tankCapacityInput.value) || 0;
+      currentFuelVolInput.value = ((tankCap * pct) / 100).toFixed(1);
+      calculate();
+    }
+
+    // Current Ethanol in Tank Sync (Slider <-> Number)
+    currentEthanolInput.addEventListener('input', () => {
+      currentEthSlider.value = currentEthanolInput.value;
+      calculate();
+    });
+
+    currentEthSlider.addEventListener('input', () => {
+      currentEthanolInput.value = currentEthSlider.value;
+      calculate();
+    });
+
+    function setCurrentEthQuick(val) {
+      currentEthanolInput.value = val;
+      currentEthSlider.value = val;
+      calculate();
+    }
+
+    function setTargetBlend(blend) {
+      targetBlendInput.value = blend;
+      updatePresetButtonStyles(blend);
+      calculate();
+    }
+
+    function updatePresetButtonStyles(val) {
+      document.querySelectorAll('.target-btn').forEach(btn => {
+        if (btn.textContent === 'E' + val) {
+          btn.classList.add('border-accentOrange', 'bg-accentOrange/20', 'text-white');
+          btn.classList.remove('border-gray-700', 'text-gray-300');
+        } else {
+          btn.classList.remove('border-accentOrange', 'bg-accentOrange/20', 'text-white');
+          btn.classList.add('border-gray-700', 'text-gray-300');
+        }
+      });
+    }
+
+    // Vehicle Preset Dropdown Listener
+    vehiclePresetSelect.addEventListener('change', (e) => {
+      const selectedVal = e.target.value;
+      if (selectedVal !== 'custom') {
+        const galValue = parseFloat(selectedVal);
+        tankCapacityInput.value = isMetric ? (galValue * GALLON_TO_LITER).toFixed(1) : galValue.toFixed(1);
+        
+        // Update helper subtitle
+        presetCarCapacityLabel.textContent = `${galValue.toFixed(1)} gal / ${(galValue * GALLON_TO_LITER).toFixed(1)} L`;
+
+        // If in percentage mode, update fuel amount to match the new tank capacity
+        if (inputMode === 'percentage') {
+          const pct = parseFloat(currentGaugeSlider.value) || 0;
+          const cap = parseFloat(tankCapacityInput.value) || 0;
+          currentFuelVolInput.value = ((cap * pct) / 100).toFixed(1);
+        }
+        calculate();
+      } else {
+        presetCarCapacityLabel.textContent = "Custom / Manual";
+      }
+    });
+
+    // If user manually types into tank capacity, switch dropdown label back to custom
+    tankCapacityInput.addEventListener('input', () => {
+      let matched = false;
+      const currentInputGal = isMetric 
+        ? parseFloat(tankCapacityInput.value) / GALLON_TO_LITER 
+        : parseFloat(tankCapacityInput.value);
+
+      for (const option of vehiclePresetSelect.options) {
+        if (option.value !== 'custom' && Math.abs(parseFloat(option.value) - currentInputGal) < 0.05) {
+          vehiclePresetSelect.value = option.value;
+          presetCarCapacityLabel.textContent = `${parseFloat(option.value).toFixed(1)} gal / ${(parseFloat(option.value) * GALLON_TO_LITER).toFixed(1)} L`;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        vehiclePresetSelect.value = 'custom';
+        presetCarCapacityLabel.textContent = "Custom / Manual";
+      }
+    });
+
+    function resetDefaults() {
+      tankCapacityInput.value = isMetric ? (13.2 * GALLON_TO_LITER).toFixed(1) : 13.2;
+      vehiclePresetSelect.value = 'custom';
+      presetCarCapacityLabel.textContent = "Custom / Manual";
+      currentFuelVolInput.value = isMetric ? (3.0 * GALLON_TO_LITER).toFixed(1) : 3.0;
+      currentEthanolInput.value = 10;
+      currentEthSlider.value = 10;
+      targetBlendInput.value = 30;
+      pumpE85EthInput.value = 85;
+      pump93EthInput.value = 10;
+      octaneE85Input.value = 105;
+      octane93Input.value = 93;
+      setTargetBlend(30);
+      setInputMode('volume');
+    }
+
+    function calculate() {
+      const tankCapacity = Math.max(0.1, parseFloat(tankCapacityInput.value) || 0);
+      let currentFuel = Math.max(0, parseFloat(currentFuelVolInput.value) || 0);
+
+      if (currentFuel > tankCapacity) {
+        currentFuel = tankCapacity;
+        currentFuelVolInput.value = tankCapacity.toFixed(1);
+      }
+
+      const currentEth = (parseFloat(currentEthanolInput.value) || 0) / 100;
+      const targetEth = (parseFloat(targetBlendInput.value) || 0) / 100;
+      const pumpE85Eth = (parseFloat(pumpE85EthInput.value) || 85) / 100;
+      const pump93Eth = (parseFloat(pump93EthInput.value) || 10) / 100;
+
+      const oct93 = parseFloat(octane93Input.value) || 93;
+      const octE85 = parseFloat(octaneE85Input.value) || 105;
+
+      // Update badge ethanol headers
+      badgePumpE85.textContent = `${Math.round(pumpE85Eth * 100)}%`;
+      badgePump93.textContent = `${Math.round(pump93Eth * 100)}%`;
+
+      targetBlendBadge.textContent = `E${Math.round(targetEth * 100)} (${Math.round(targetEth * 100)}%)`;
+      updatePresetButtonStyles(Math.round(targetEth * 100));
+
+      const emptySpace = Math.max(0, tankCapacity - currentFuel);
+      const ethDelta = pumpE85Eth - pump93Eth;
+
+      let e85Needed = 0;
+      let gas93Needed = 0;
+      let warning = null;
+
+      if (ethDelta <= 0) {
+        warning = "Station E85 % must be higher than Station 93 Octane ethanol %";
+      } else {
+        /*
+          Linear Equation System:
+          V_e85 + V_93 = emptySpace
+          (currentFuel * currentEth) + (V_e85 * pumpE85Eth) + (V_93 * pump93Eth) = tankCapacity * targetEth
+          V_e85 = [ tankCapacity * targetEth - currentFuel * currentEth - emptySpace * pump93Eth ] / (pumpE85Eth - pump93Eth)
+        */
+        const numerator = (tankCapacity * targetEth) - (currentFuel * currentEth) - (emptySpace * pump93Eth);
+        e85Needed = numerator / ethDelta;
+        gas93Needed = emptySpace - e85Needed;
+
+        if (e85Needed < 0) {
+          e85Needed = 0;
+          gas93Needed = emptySpace;
+          warning = `Current ethanol in tank (${Math.round(currentEth * 100)}%) is already above target E${Math.round(targetEth * 100)}. Add only 93 Octane to dilute.`;
+        } else if (gas93Needed < 0) {
+          e85Needed = emptySpace;
+          gas93Needed = 0;
+          const maxBlend = ((currentFuel * currentEth) + (emptySpace * pumpE85Eth)) / tankCapacity;
+          warning = `Max blend achievable is E${Math.round(maxBlend * 100)} because current tank has ${currentFuel.toFixed(1)} ${isMetric ? 'L' : 'gal'} of lower ethanol fuel.`;
+        }
+      }
+
+      e85Needed = Math.max(0, e85Needed);
+      gas93Needed = Math.max(0, gas93Needed);
+
+      const totalVolume = currentFuel + e85Needed + gas93Needed;
+
+      // Octane Rating Calculation
+      const curOctane = oct93 + (currentEth - pump93Eth) * ((octE85 - oct93) / (pumpE85Eth - pump93Eth));
+      const blendedOctane = totalVolume > 0 
+        ? ((currentFuel * curOctane) + (e85Needed * octE85) + (gas93Needed * oct93)) / totalVolume 
+        : oct93;
+
+      const finalEthanolPct = totalVolume > 0
+        ? ((currentFuel * currentEth) + (e85Needed * pumpE85Eth) + (gas93Needed * pump93Eth)) / totalVolume
+        : targetEth;
+
+      // Display Readouts
+      outE85Vol.textContent = e85Needed.toFixed(2);
+      out93Vol.textContent = gas93Needed.toFixed(2);
+
+      // Subtitle equivalent in alternate units
+      if (isMetric) {
+        outE85LitersSub.textContent = `≈ ${(e85Needed / GALLON_TO_LITER).toFixed(2)} Gallons`;
+        out93LitersSub.textContent = `≈ ${(gas93Needed / GALLON_TO_LITER).toFixed(2)} Gallons`;
+      } else {
+        outE85LitersSub.textContent = `≈ ${(e85Needed * GALLON_TO_LITER).toFixed(1)} Liters`;
+        out93LitersSub.textContent = `≈ ${(gas93Needed * GALLON_TO_LITER).toFixed(1)} Liters`;
+      }
+
+      outOctane.textContent = blendedOctane.toFixed(1);
+      outBlend.textContent = `E${Math.round(finalEthanolPct * 100)}`;
+      
+      const unit = isMetric ? 'L' : 'Gal';
+      outTotalVolume.textContent = `${totalVolume.toFixed(1)} / ${tankCapacity.toFixed(1)} ${unit}`;
+      
+      const freeSpace = Math.max(0, tankCapacity - totalVolume);
+      outFreeSpace.textContent = freeSpace > 0.05 ? `${freeSpace.toFixed(1)} ${unit} free space` : 'Tank will be Full';
+
+      // Visual stacked bars
+      const pctCurrent = (currentFuel / tankCapacity) * 100;
+      const pctE85 = (e85Needed / tankCapacity) * 100;
+      const pct93 = (gas93Needed / tankCapacity) * 100;
+
+      barCurrent.style.width = `${pctCurrent}%`;
+      barE85.style.width = `${pctE85}%`;
+      bar93.style.width = `${pct93}%`;
+
+      legendCurVal.textContent = currentFuel.toFixed(1);
+      legendE85Val.textContent = e85Needed.toFixed(1);
+      legend93Val.textContent = gas93Needed.toFixed(1);
+
+      if (warning) {
+        alertMessage.textContent = warning;
+        alertBanner.classList.remove('hidden');
+      } else {
+        alertBanner.classList.add('hidden');
+      }
+    }
+
+    function copyMixRecipe() {
+      const unit = isMetric ? 'L' : 'gal';
+      const text = `⛽ Ethanol Blend Target: ${outBlend.textContent} (~${outOctane.textContent} AKI)\n` +
+                   `• Add E85 (${badgePumpE85.textContent}): ${outE85Vol.textContent} ${unit}\n` +
+                   `• Add 93 Gas: ${out93Vol.textContent} ${unit}\n` +
+                   `• In Tank Fuel: ${currentFuelVolInput.value} ${unit} @ ${currentEthanolInput.value}% ethanol\n` +
+                   `• Total Tank: ${tankCapacityInput.value} ${unit}`;
+
+      const tempArea = document.createElement("textarea");
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempArea);
+
+      // Temporary visual feedback
+      const alertBadge = document.getElementById('alertBanner');
+      const oldMsg = alertMessage.textContent;
+      const wasHidden = alertBadge.classList.contains('hidden');
+
+      alertMessage.textContent = "Copied recipe to clipboard!";
+      alertBadge.classList.remove('hidden', 'bg-accentRed/20', 'border-accentRed/50', 'text-red-200');
+      alertBadge.classList.add('bg-accentGreen/20', 'border-accentGreen/50', 'text-green-200');
+
+      setTimeout(() => {
+        alertBadge.classList.remove('bg-accentGreen/20', 'border-accentGreen/50', 'text-green-200');
+        alertBadge.classList.add('bg-accentRed/20', 'border-accentRed/50', 'text-red-200');
+        if (wasHidden) {
+          alertBadge.classList.add('hidden');
+        } else {
+          alertMessage.textContent = oldMsg;
+        }
+      }, 2000);
+    }
+
+    // Attach Input Event Listeners
+    [
+      tankCapacityInput, currentFuelVolInput, targetBlendInput,
+      pumpE85EthInput, pump93EthInput, octaneE85Input, octane93Input
+    ].forEach(el => el.addEventListener('input', calculate));
+
+    window.onload = function() {
+      calculate();
+    };
+  </script>
+</body>
+</html>
