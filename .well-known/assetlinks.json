@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.staykraftyinc_debug.twa",
+        "sha256_cert_fingerprints": ["74:27:08:5E:D9:12:E4:38:01:B5:EF:4F:42:08:28:4D:7D:A2:AE:A4:3F:3D:4D:E5:42:5C:F0:E0:4D:4E:D7:EA"]
+      }
+    }]
