@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-512.png">
   <meta name="theme-color" content="#ff6600">
-  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js?v=11'); }</script>
+  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
   <style>
     :root { --bg: #090b0e; --card-bg: #12151b; --border: #222730; --accent: #ff6600; --accent-glow: rgba(255,102,0,0.35); --pump93: #00d26a; --e85: #ff9900; --text: #f0f2f5; --muted: #8a94a6; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -98,23 +98,13 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title">
-        <span>Current Fuel Level</span>
-        <div class="toggle-group" style="width: 130px;">
-          <div id="mode-pct" class="toggle-opt active" onclick="setFuelMode('pct')">GAUGE %</div>
-          <div id="mode-vol" class="toggle-opt" onclick="setFuelMode('vol')">VOL</div>
-        </div>
-      </div>
-      <div class="row" id="fuel-pct-row">
+      <div class="card-title">Current Fuel Level</div>
+      <div class="row">
         <div class="label-group" style="flex: 1; margin-right: 8px;">
           <span class="label-main" id="pct-label">Fuel Gauge: 25% (1/4)</span>
           <input type="range" id="fuel-pct-slider" class="slider" min="0" max="100" value="25">
         </div>
         <div class="input-box" id="fuel-pct-display" style="width: auto;">3.1 <span style="font-size: 0.7rem;" id="calc-vol-unit">GAL</span></div>
-      </div>
-      <div class="row" id="fuel-vol-row" style="display: none;">
-        <div class="label-group"><span class="label-main">Current Fuel Left</span><span class="label-sub">In tank right now</span></div>
-        <input type="number" id="fuel-vol" class="input-box" value="3.1" step="0.1">
       </div>
       <div class="pill-group">
         <div class="pill-btn" onclick="setQuickLevel(0)">E (Empty)</div>
@@ -175,7 +165,7 @@
   </div>
 
   <script>
-    let activeUnit = 'gal', fuelMode = 'pct';
+    let activeUnit = 'gal';
 
     function setUnit(u) {
       if (activeUnit === u) return;
@@ -198,15 +188,6 @@
       let cap = parseFloat(select.value);
       if (activeUnit === 'l') cap = cap * 3.78541;
       document.getElementById('tank-cap').value = (Math.round(cap * 10) / 10).toFixed(1);
-      calculate();
-    }
-
-    function setFuelMode(m) {
-      fuelMode = m;
-      document.getElementById('mode-pct').classList.toggle('active', m === 'pct');
-      document.getElementById('mode-vol').classList.toggle('active', m === 'vol');
-      document.getElementById('fuel-pct-row').style.display = m === 'pct' ? 'flex' : 'none';
-      document.getElementById('fuel-vol-row').style.display = m === 'vol' ? 'flex' : 'none';
       calculate();
     }
 
@@ -268,11 +249,9 @@
     function saveState() {
       const state = {
         unit: activeUnit,
-        fuelMode: fuelMode,
         vehicle: document.getElementById('vehicle-select').value,
         tankCap: document.getElementById('tank-cap').value,
         fuelPct: document.getElementById('fuel-pct-slider').value,
-        fuelVol: document.getElementById('fuel-vol').value,
         tankEth: document.getElementById('tank-eth-val').value,
         targetEth: document.getElementById('target-eth-val').value,
         specPumpGas: document.getElementById('spec-pump-gas-e').value,
@@ -287,14 +266,12 @@
       try {
         const s = JSON.parse(saved);
         if (s.unit && s.unit !== activeUnit) setUnit(s.unit);
-        if (s.fuelMode && s.fuelMode !== fuelMode) setFuelMode(s.fuelMode);
         if (s.vehicle) document.getElementById('vehicle-select').value = s.vehicle;
         if (s.tankCap) document.getElementById('tank-cap').value = s.tankCap;
         if (s.fuelPct) {
           document.getElementById('fuel-pct-slider').value = s.fuelPct;
           onFuelPctSlide();
         }
-        if (s.fuelVol) document.getElementById('fuel-vol').value = s.fuelVol;
         if (s.tankEth) {
           document.getElementById('tank-eth-slider').value = s.tankEth;
           document.getElementById('tank-eth-val').value = s.tankEth;
@@ -314,14 +291,11 @@
 
     function calculate() {
       const tankCapacity = parseFloat(document.getElementById('tank-cap').value) || 0;
-      let currentVol = 0;
-      if (fuelMode === 'pct') {
-        const pct = parseFloat(document.getElementById('fuel-pct-slider').value) || 0;
-        currentVol = (pct / 100) * tankCapacity;
-        document.getElementById('fuel-pct-display').innerHTML = `${(Math.round(currentVol * 10) / 10).toFixed(1)} <span style="font-size:0.7rem;">${activeUnit.toUpperCase()}</span>`;
-      } else {
-        currentVol = parseFloat(document.getElementById('fuel-vol').value) || 0;
-      }
+      const pct = parseFloat(document.getElementById('fuel-pct-slider').value) || 0;
+      const currentVol = (pct / 100) * tankCapacity;
+      
+      document.getElementById('fuel-pct-display').innerHTML = `${(Math.round(currentVol * 10) / 10).toFixed(1)} <span style="font-size:0.7rem;">${activeUnit.toUpperCase()}</span>`;
+
       const curEth = (parseFloat(document.getElementById('tank-eth-val').value) || 0) / 100;
       const tarEth = (parseFloat(document.getElementById('target-eth-val').value) || 0) / 100;
       const gasEth = (parseFloat(document.getElementById('spec-pump-gas-e').value) || 10) / 100;
@@ -348,7 +322,6 @@
     document.getElementById('vehicle-select').addEventListener('change', applyVehiclePreset);
     document.getElementById('tank-cap').addEventListener('input', () => { document.getElementById('vehicle-select').value = 'custom'; calculate(); });
     document.getElementById('fuel-pct-slider').addEventListener('input', onFuelPctSlide);
-    document.getElementById('fuel-vol').addEventListener('input', calculate);
     document.getElementById('tank-eth-slider').addEventListener('input', onTankEthSlide);
     document.getElementById('tank-eth-val').addEventListener('input', onTankEthInput);
     document.getElementById('target-eth-slider').addEventListener('input', onTargetEthSlide);
