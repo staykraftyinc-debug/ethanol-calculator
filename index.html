@@ -18,7 +18,8 @@
       --pump93: #00d26a; 
       --e85: #ff9900; 
       --text: #f0f2f5; 
-      --muted: #8a94a6; 
+      --muted: #8a94a6;
+      --alert: #ffaa00;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
@@ -90,8 +91,7 @@
     details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; }
     summary { cursor: pointer; font-weight: 700; color: var(--muted); }
 
-    /* Settings Theme Palette */
-    .color-swatches { display: flex; gap: 10px; margin-top: 6px; }
+    .color-swatches { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .color-swatch {
       width: 32px;
       height: 32px;
@@ -102,6 +102,53 @@
     }
     .color-swatch:active { transform: scale(0.9); }
     .color-swatch.active { border-color: #fff; transform: scale(1.1); }
+    .color-picker-input {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      overflow: hidden;
+      -webkit-appearance: none;
+    }
+    .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-picker-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+    /* Alert Banner */
+    .alert-banner {
+      background: rgba(255, 170, 0, 0.12);
+      border: 1px solid var(--alert);
+      color: #ffc247;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.3;
+    }
+
+    /* Copy Button */
+    .btn-copy {
+      background: #0d0f13;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .btn-copy:active { background: var(--accent); color: #000; }
   </style>
 </head>
 <body>
@@ -125,6 +172,7 @@
         <div class="color-swatch" style="background: #0088ff;" onclick="setTheme('#0088ff', 'rgba(0,136,255,0.35)')" title="Electric Blue"></div>
         <div class="color-swatch" style="background: #00e676;" onclick="setTheme('#00e676', 'rgba(0,230,118,0.35)')" title="Acid Green"></div>
         <div class="color-swatch" style="background: #a855f7;" onclick="setTheme('#a855f7', 'rgba(168,85,247,0.35)')" title="Stealth Purple"></div>
+        <input type="color" id="custom-color-picker" class="color-picker-input" value="#ff6600" title="Custom Hex Picker" onchange="onCustomColorPick(this.value)">
       </div>
     </div>
 
@@ -234,23 +282,55 @@
 
     <!-- Advanced Pump Rating Drawer -->
     <details>
-      <summary style="margin-bottom:8px;">Pump Station Specs (Winter / Fluctuation)</summary>
+      <summary style="margin-bottom:8px;">Pump Station Specs & Octane</summary>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <div class="row"><span class="label-main">Pump Gas Ethanol %</span><input type="number" id="spec-pump-gas-e" class="input-box" value="10"></div>
         <div class="row"><span class="label-main">Pump E85 Actual Ethanol %</span><input type="number" id="spec-pump-e85-e" class="input-box" value="85"></div>
+        <div class="row"><span class="label-main">Base Pump Gas Octane (AKI)</span><input type="number" id="spec-pump-gas-oct" class="input-box" value="93"></div>
       </div>
     </details>
 
     <!-- Calculation Results -->
     <div class="results-card">
       <div class="mix-display">
-        <div><div class="brand">TOTAL FILL REQUIRED</div><div class="mix-badge" id="res-target-badge">E30 BLEND</div></div>
-        <div style="text-align: right;"><div class="octane-est" id="res-octane">~95.5 OCT</div><span class="label-sub">FILL TO BRIM</span></div>
+        <div>
+          <div class="brand">TOTAL FILL REQUIRED</div>
+          <div class="mix-badge" id="res-target-badge">E30 BLEND</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="octane-est" id="res-octane">~95.5 OCT</div>
+          <span class="label-sub" id="res-fill-head">FILL TO BRIM</span>
+        </div>
       </div>
+
+      <!-- Fill Mode Option: Brim vs Partial Fill -->
+      <div class="row" style="padding: 4px 0;">
+        <span class="label-sub" style="font-weight: 700;">FILL STRATEGY</span>
+        <div class="toggle-group" style="width: 190px;">
+          <div id="fillmode-brim" class="toggle-opt active" onclick="setFillStrategy('brim')">TO BRIM</div>
+          <div id="fillmode-part" class="toggle-opt" onclick="setFillStrategy('part')">CUSTOM VOL</div>
+        </div>
+      </div>
+
+      <!-- Custom Volume Input (Shown when in Partial Fill mode) -->
+      <div class="row" id="custom-fill-row" style="display: none; background: #0d0f13; padding: 8px 10px; border-radius: 8px;">
+        <span class="label-main" style="font-size: 0.85rem;">Total Volume to Add:</span>
+        <input type="number" id="custom-fill-val" class="input-box" value="5.0" step="0.5" style="width: 80px;">
+      </div>
+
+      <!-- Warning Banner for Unachievable Blends -->
+      <div class="alert-banner" id="overflow-alert">
+        <span>⚠️ Target blend exceeds available tank volume. Max achievable right now is <strong id="alert-max-blend">E45</strong>.</span>
+      </div>
+
       <div class="recipe-grid">
         <div class="pump-box eth"><span class="pump-title">Add E85 Fuel</span><div class="pump-val" id="res-add-e85">0.0 <span style="font-size:0.75rem;" class="unit-text">GAL</span></div></div>
         <div class="pump-box gas"><span class="pump-title">Add Pump Gas</span><div class="pump-val" id="res-add-93">0.0 <span style="font-size:0.75rem;" class="unit-text">GAL</span></div></div>
       </div>
+
+      <button class="btn-copy" id="btn-copy" onclick="copyRecipe()">
+        📋 Copy Recipe to Clipboard
+      </button>
     </div>
   </div>
 
@@ -258,6 +338,7 @@
     let activeUnit = 'gal';
     let currentAccent = '#ff6600';
     let currentGlow = 'rgba(255,102,0,0.35)';
+    let fillStrategy = 'brim';
 
     function toggleSettings() {
       const card = document.getElementById('settings-card');
@@ -277,7 +358,16 @@
         sw.classList.toggle('active', sw.style.backgroundColor === color || rgbToHex(sw.style.backgroundColor) === color.toLowerCase());
       });
 
+      const picker = document.getElementById('custom-color-picker');
+      if (picker) picker.value = color;
+
       saveState();
+    }
+
+    function onCustomColorPick(hex) {
+      const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+      const glow = `rgba(${r},${g},${b},0.35)`;
+      setTheme(hex, glow);
     }
 
     function rgbToHex(rgb) {
@@ -296,9 +386,24 @@
       let cap = parseFloat(capInput.value) || 0;
       cap = (u === 'l' && prev === 'gal') ? cap * 3.78541 : (u === 'gal' && prev === 'l') ? cap / 3.78541 : cap;
       capInput.value = (Math.round(cap * 10) / 10).toFixed(1);
+
+      const partInput = document.getElementById('custom-fill-val');
+      let pVal = parseFloat(partInput.value) || 0;
+      pVal = (u === 'l' && prev === 'gal') ? pVal * 3.78541 : (u === 'gal' && prev === 'l') ? pVal / 3.78541 : pVal;
+      partInput.value = (Math.round(pVal * 10) / 10).toFixed(1);
+
       document.querySelectorAll('.unit-text').forEach(el => el.textContent = u.toUpperCase());
       document.getElementById('calc-vol-unit').textContent = u.toUpperCase();
       document.getElementById('unit-sub').textContent = `Total volume in ${u.toUpperCase()}`;
+      calculate();
+    }
+
+    function setFillStrategy(strat) {
+      fillStrategy = strat;
+      document.getElementById('fillmode-brim').classList.toggle('active', strat === 'brim');
+      document.getElementById('fillmode-part').classList.toggle('active', strat === 'part');
+      document.getElementById('custom-fill-row').style.display = strat === 'part' ? 'flex' : 'none';
+      document.getElementById('res-fill-head').textContent = strat === 'brim' ? 'FILL TO BRIM' : 'CUSTOM FILL';
       calculate();
     }
 
@@ -366,18 +471,38 @@
       calculate();
     }
 
+    function copyRecipe() {
+      const e85Amt = document.getElementById('res-add-e85').textContent.trim();
+      const gasAmt = document.getElementById('res-add-93').textContent.trim();
+      const targetTxt = document.getElementById('res-target-badge').textContent;
+      const octTxt = document.getElementById('res-octane').textContent;
+      const textToCopy = `Krafty Blend: Add ${e85Amt} E85 + ${gasAmt} Pump Gas for ${targetTxt} (${octTxt})`;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const btn = document.getElementById('btn-copy');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✅ Copied to Clipboard!';
+        setTimeout(() => btn.innerHTML = orig, 1800);
+      }).catch(err => {
+        console.error('Copy failed', err);
+      });
+    }
+
     function saveState() {
       const state = {
         unit: activeUnit,
         accent: currentAccent,
         glow: currentGlow,
+        fillStrategy: fillStrategy,
         vehicle: document.getElementById('vehicle-select').value,
         tankCap: document.getElementById('tank-cap').value,
         fuelPct: document.getElementById('fuel-pct-slider').value,
         tankEth: document.getElementById('tank-eth-val').value,
         targetEth: document.getElementById('target-eth-val').value,
+        customFillVal: document.getElementById('custom-fill-val').value,
         specPumpGas: document.getElementById('spec-pump-gas-e').value,
-        specPumpE85: document.getElementById('spec-pump-e85-e').value
+        specPumpE85: document.getElementById('spec-pump-e85-e').value,
+        specBaseOct: document.getElementById('spec-pump-gas-oct').value
       };
       localStorage.setItem('krafty_calc_state', JSON.stringify(state));
     }
@@ -389,8 +514,10 @@
         const s = JSON.parse(saved);
         if (s.accent && s.glow) setTheme(s.accent, s.glow);
         if (s.unit && s.unit !== activeUnit) setUnit(s.unit);
+        if (s.fillStrategy) setFillStrategy(s.fillStrategy);
         if (s.vehicle) document.getElementById('vehicle-select').value = s.vehicle;
         if (s.tankCap) document.getElementById('tank-cap').value = s.tankCap;
+        if (s.customFillVal) document.getElementById('custom-fill-val').value = s.customFillVal;
         if (s.fuelPct) {
           document.getElementById('fuel-pct-slider').value = s.fuelPct;
           onFuelPctSlide();
@@ -407,6 +534,7 @@
         }
         if (s.specPumpGas) document.getElementById('spec-pump-gas-e').value = s.specPumpGas;
         if (s.specPumpE85) document.getElementById('spec-pump-e85-e').value = s.specPumpE85;
+        if (s.specBaseOct) document.getElementById('spec-pump-gas-oct').value = s.specBaseOct;
       } catch (err) {
         console.error('Error loading saved state', err);
       }
@@ -423,21 +551,50 @@
       const tarEth = (parseFloat(document.getElementById('target-eth-val').value) || 0) / 100;
       const gasEth = (parseFloat(document.getElementById('spec-pump-gas-e').value) || 10) / 100;
       const e85Eth = (parseFloat(document.getElementById('spec-pump-e85-e').value) || 85) / 100;
-      const fillNeeded = Math.max(0, tankCapacity - currentVol);
+      const baseOct = parseFloat(document.getElementById('spec-pump-gas-oct').value) || 93;
+
+      let fillNeeded = 0;
+      let targetTotalVol = 0;
+
+      if (fillStrategy === 'brim') {
+        fillNeeded = Math.max(0, tankCapacity - currentVol);
+        targetTotalVol = tankCapacity;
+      } else {
+        const customAdd = parseFloat(document.getElementById('custom-fill-val').value) || 0;
+        fillNeeded = Math.min(Math.max(0, tankCapacity - currentVol), customAdd);
+        targetTotalVol = currentVol + fillNeeded;
+      }
+
+      // Max Achievable Blend Calculation
+      const alertBox = document.getElementById('overflow-alert');
+      const maxPossibleEthRatio = (targetTotalVol > 0) ? ((currentVol * curEth) + (fillNeeded * e85Eth)) / targetTotalVol : curEth;
+      const maxPossibleBlendPct = Math.round(maxPossibleEthRatio * 100);
+
+      if (tarEth > maxPossibleEthRatio + 0.005 && fillNeeded > 0) {
+        document.getElementById('alert-max-blend').textContent = `E${maxPossibleBlendPct}`;
+        alertBox.style.display = 'flex';
+      } else {
+        alertBox.style.display = 'none';
+      }
+
       let addE85 = 0, addGas = 0;
       if (fillNeeded > 0) {
         const ethDiff = e85Eth - gasEth;
         if (ethDiff > 0) {
-          addE85 = ((tankCapacity * tarEth) - (currentVol * curEth) - (fillNeeded * gasEth)) / ethDiff;
+          addE85 = ((targetTotalVol * tarEth) - (currentVol * curEth) - (fillNeeded * gasEth)) / ethDiff;
           addE85 = Math.max(0, Math.min(fillNeeded, addE85));
           addGas = fillNeeded - addE85;
         }
       }
+
       document.getElementById('res-target-badge').textContent = `E${Math.round(tarEth * 100)} BLEND`;
       document.getElementById('res-add-e85').innerHTML = `${addE85.toFixed(2)} <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
       document.getElementById('res-add-93').innerHTML = `${addGas.toFixed(2)} <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
-      const estOct = 93 + (((tarEth * 100) - 10) / 75) * 12;
-      document.getElementById('res-octane').textContent = `~${Math.min(105, Math.max(93, estOct)).toFixed(1)} OCT`;
+      
+      // Dynamic Octane Estimation factoring baseOct (91, 93, or custom)
+      const e85Octane = 105;
+      const estOct = baseOct + (((tarEth * 100) - (gasEth * 100)) / ((e85Eth * 100) - (gasEth * 100))) * (e85Octane - baseOct);
+      document.getElementById('res-octane').textContent = `~${Math.min(105, Math.max(baseOct, estOct)).toFixed(1)} OCT`;
       
       saveState();
     }
@@ -449,8 +606,10 @@
     document.getElementById('tank-eth-val').addEventListener('input', onTankEthInput);
     document.getElementById('target-eth-slider').addEventListener('input', onTargetEthSlide);
     document.getElementById('target-eth-val').addEventListener('input', onTargetEthInput);
+    document.getElementById('custom-fill-val').addEventListener('input', calculate);
     document.getElementById('spec-pump-gas-e').addEventListener('input', calculate);
     document.getElementById('spec-pump-e85-e').addEventListener('input', calculate);
+    document.getElementById('spec-pump-gas-oct').addEventListener('input', calculate);
 
     loadState();
     calculate();
