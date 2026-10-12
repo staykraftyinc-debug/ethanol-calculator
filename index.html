@@ -627,4 +627,73 @@
     }
 
     function calculate() {
-      const tankCapacity = parseFloat(docum
+      const tankCapacity = parseFloat(document.getElementById('tank-cap').value) || 0;
+      let currentVol = 0;
+
+      if (fuelMode === 'pct') {
+        const pct = parseFloat(document.getElementById('fuel-pct-slider').value) || 0;
+        currentVol = (pct / 100) * tankCapacity;
+        const displayEl = document.getElementById('fuel-pct-display');
+        if (displayEl) {
+          displayEl.innerHTML = `${(Math.round(currentVol * 10) / 10).toFixed(1)} <span style="font-size:0.7rem;">${activeUnit.toUpperCase()}</span>`;
+        }
+      } else {
+        currentVol = parseFloat(document.getElementById('fuel-vol').value) || 0;
+      }
+
+      const currentEth = (parseFloat(document.getElementById('tank-eth-val').value) || 0) / 100;
+      const targetEth = (parseFloat(document.getElementById('target-eth-val').value) || 0) / 100;
+      const pumpGasEth = (parseFloat(document.getElementById('spec-pump-gas-e').value) || 10) / 100;
+      const pumpE85Eth = (parseFloat(document.getElementById('spec-pump-e85-e').value) || 85) / 100;
+
+      const fillNeeded = Math.max(0, tankCapacity - currentVol);
+
+      let addE85 = 0;
+      let add93 = 0;
+
+      if (fillNeeded > 0) {
+        const ethanolNeeded = (tankCapacity * targetEth) - (currentVol * currentEth);
+        const ethDiff = pumpE85Eth - pumpGasEth;
+
+        if (ethDiff > 0) {
+          addE85 = (ethanolNeeded - (fillNeeded * pumpGasEth)) / ethDiff;
+          addE85 = Math.max(0, Math.min(fillNeeded, addE85));
+          add93 = fillNeeded - addE85;
+        }
+      }
+
+      document.getElementById('res-target-badge').textContent = `E${Math.round(targetEth * 100)} BLEND`;
+      document.getElementById('res-add-e85').innerHTML = `${addE85.toFixed(2)} <span style="font-size:0.8rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
+      document.getElementById('res-add-93').innerHTML = `${add93.toFixed(2)} <span style="font-size:0.8rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
+
+      // Octane Estimation: 93 AKI for pump gas baseline, ~105 AKI for pure E85
+      const totalEthPct = targetEth * 100;
+      const estOctane = 93 + ((totalEthPct - 10) / 75) * (105 - 93);
+      document.getElementById('res-octane').textContent = `~${Math.min(105, Math.max(93, estOctane)).toFixed(1)} OCT (AKI)`;
+    }
+
+    // Direct event listener binding
+    document.getElementById('vehicle-select').addEventListener('change', applyVehiclePreset);
+    
+    document.getElementById('tank-cap').addEventListener('input', () => {
+      document.getElementById('vehicle-select').value = 'custom';
+      calculate();
+    });
+
+    document.getElementById('fuel-pct-slider').addEventListener('input', onFuelPctSlide);
+    document.getElementById('fuel-vol').addEventListener('input', calculate);
+
+    document.getElementById('tank-eth-slider').addEventListener('input', onTankEthSlide);
+    document.getElementById('tank-eth-val').addEventListener('input', onTankEthInput);
+
+    document.getElementById('target-eth-slider').addEventListener('input', onTargetEthSlide);
+    document.getElementById('target-eth-val').addEventListener('input', onTargetEthInput);
+
+    document.getElementById('spec-pump-gas-e').addEventListener('input', calculate);
+    document.getElementById('spec-pump-e85-e').addEventListener('input', calculate);
+
+    // Initial render
+    calculate();
+  </script>
+</body>
+</html>
