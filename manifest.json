@@ -2,15 +2,15 @@
   "id": "/ethanol-calc/",
   "name": "Ethanol Blend Calculator",
   "short_name": "E85 Calc",
-  "start_url": "https://staykraftyinc-debug.github.io/ethanol-calc/",
-  "scope": "https://staykraftyinc-debug.github.io/ethanol-calc/",
+  "start_url": "/ethanol-calc/",
+  "scope": "/ethanol-calc/",
   "display": "standalone",
   "background_color": "#0d0f12",
   "theme_color": "#ff6600",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://staykraftyinc-debug.github.io/ethanol-calc/icon-512.png",
+      "src": "/ethanol-calc/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
