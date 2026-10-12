@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Ethanol Blend Calculator</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-512.png">
@@ -25,15 +25,45 @@
       --info-bg: rgba(0, 136, 255, 0.12);
       --info-border: #0088ff;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
-    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px; }
+    
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+    
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    body { 
+      display: flex; 
+      justify-content: center; 
+      min-height: 100vh; 
+      padding: 12px; 
+    }
+
+    .container { 
+      width: 100%; 
+      max-width: 440px; 
+      margin: 0 auto;
+      display: flex; 
+      flex-direction: column; 
+      gap: 14px; 
+      padding-bottom: 24px; 
+    }
     
     header { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      padding: 10px 4px; 
+      padding: 6px 2px 10px 2px; 
       border-bottom: 1px solid var(--border); 
     }
     .header-titles { text-align: left; }
@@ -52,22 +82,23 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     .settings-btn:hover { color: var(--accent); border-color: var(--accent); }
     .settings-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
-    .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .card-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .label-group { display: flex; flex-direction: column; gap: 2px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+    .label-group { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .label-main { font-size: 0.95rem; font-weight: 600; }
     .label-sub { font-size: 0.75rem; color: var(--muted); }
     
-    .input-box { width: 100px; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: #fff; font-size: 1.05rem; font-weight: 700; text-align: right; }
+    .input-box { width: 95px; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: #fff; font-size: 1.05rem; font-weight: 700; text-align: right; flex-shrink: 0; }
     .input-box:focus, select.input-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
     select.input-select { width: 100%; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.9rem; font-weight: 600; }
     
-    .pill-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .pill-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
     .pill-btn { background: #0d0f13; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 0.75rem; font-weight: 700; padding: 8px 0; text-align: center; cursor: pointer; transition: all 0.15s; }
     .pill-btn.active { 
       background: var(--accent); 
@@ -76,8 +107,8 @@
       box-shadow: 0 0 6px var(--accent-glow);
     }
     
-    .toggle-group { display: flex; background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 2px; }
-    .toggle-opt { flex: 1; text-align: center; padding: 6px 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--muted); transition: background 0.15s, color 0.15s; }
+    .toggle-group { display: flex; background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 2px; width: 100%; }
+    .toggle-opt { flex: 1; text-align: center; padding: 6px 2px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--muted); transition: background 0.15s, color 0.15s; white-space: nowrap; }
     .toggle-opt.active { background: var(--card-bg); color: var(--text); }
     
     .slider { width: 100%; height: 32px; background: transparent; -webkit-appearance: none; appearance: none; margin: 4px 0; cursor: pointer; touch-action: pan-x; }
@@ -102,22 +133,21 @@
       box-shadow: 0 0 8px var(--accent-glow); 
     }
     
-    .results-card { background: linear-gradient(180deg, #161b22 0%, #10141a 100%); border: 1px solid #30363d; border-top: 3px solid var(--accent); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .results-card { background: linear-gradient(180deg, #161b22 0%, #10141a 100%); border: 1px solid #30363d; border-top: 3px solid var(--accent); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; width: 100%; }
     .mix-display { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .mix-badge { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
     .octane-est { font-size: 0.85rem; font-weight: 700; color: #00d26a; }
-    .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pump-box { background: #0d0f13; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; border-left: 4px solid var(--muted); }
+    .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .pump-box { background: #0d0f13; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; border-left: 4px solid var(--muted); min-width: 0; }
     .pump-box.gas { border-left-color: var(--pump93); }
     .pump-box.eth { border-left-color: var(--e85); }
     .pump-val { font-size: 1.25rem; font-weight: 900; color: #fff; }
     .pump-sub { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
     .pump-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
     
-    details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; }
+    details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; width: 100%; }
     summary { cursor: pointer; font-weight: 700; color: var(--muted); }
 
-    /* Custom Theme Palette Controls */
     .color-swatches { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .color-swatch {
       width: 32px;
@@ -179,6 +209,7 @@
       align-items: center;
       gap: 8px;
       line-height: 1.3;
+      width: 100%;
     }
 
     .info-banner {
@@ -193,6 +224,7 @@
       align-items: center;
       gap: 6px;
       line-height: 1.3;
+      width: 100%;
     }
 
     .btn-copy {
@@ -210,14 +242,14 @@
       gap: 6px;
       transition: all 0.15s;
       margin-top: 4px;
+      width: 100%;
     }
     .btn-copy:active { background: var(--accent); color: var(--accent-contrast); }
 
-    /* About & Notes Tab Styling */
-    .tab-content { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .tab-content { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; width: 100%; }
     .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; }
     .feature-list li strong { color: var(--accent); }
-    .changelog-box { background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .changelog-box { background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; width: 100%; }
     .changelog-ver { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 4px; display: flex; justify-content: space-between; }
     .changelog-items { font-size: 0.75rem; color: var(--muted); padding-left: 16px; line-height: 1.4; }
   </style>
@@ -234,7 +266,7 @@
       </button>
     </header>
 
-    <!-- Collapsible Settings Panel with Segmented Sub-Tabs -->
+    <!-- Collapsible Settings Panel -->
     <div class="card" id="settings-card" style="display: none; border-color: var(--accent);">
       <div class="toggle-group" style="margin-bottom: 4px;">
         <div id="stab-tuning" class="toggle-opt active" onclick="setSettingsTab('tuning')">THEME & TUNING</div>
@@ -426,28 +458,28 @@
         </div>
       </div>
 
-      <!-- Fill Mode Option: Full Tank vs Custom Vol vs Budget -->
-      <div class="row" style="padding: 2px 0;">
-        <span class="label-sub" style="font-weight: 700;">STRATEGY</span>
-        <div class="toggle-group" style="width: 250px;">
+      <!-- Fill Mode Option: Auto-Flex Strategy Bar -->
+      <div class="row" style="padding: 2px 0; gap: 8px;">
+        <span class="label-sub" style="font-weight: 700; flex-shrink: 0;">STRATEGY</span>
+        <div class="toggle-group" style="flex: 1;">
           <div id="fillmode-brim" class="toggle-opt active" onclick="setFillStrategy('brim')">FULL TANK</div>
           <div id="fillmode-part" class="toggle-opt" onclick="setFillStrategy('part')">CUSTOM VOL</div>
           <div id="fillmode-budget" class="toggle-opt" onclick="setFillStrategy('budget')">$ BUDGET</div>
         </div>
       </div>
 
-      <!-- Custom Volume Input (Shown when in Custom Vol mode) -->
+      <!-- Custom Volume Input -->
       <div class="row" id="custom-fill-row" style="display: none; background: #0d0f13; padding: 8px 10px; border-radius: 8px;">
         <span class="label-main" style="font-size: 0.85rem;">Volume to Add:</span>
         <input type="number" id="custom-fill-val" class="input-box" value="5.0" step="0.5" style="width: 80px;">
       </div>
 
       <!-- Budget Mode Inputs & Notice Banner -->
-      <div id="budget-fill-container" style="display: none; flex-direction: column; gap: 8px;">
+      <div id="budget-fill-container" style="display: none; flex-direction: column; gap: 8px; width: 100%;">
         <div class="info-banner">
           <span>ℹ️ Gas prices fluctuate daily. Verify current pump prices match before pumping.</span>
         </div>
-        <div style="background: #0d0f13; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: #0d0f13; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; width: 100%;">
           <div class="row">
             <span class="label-main" style="font-size: 0.85rem;">Total Budget ($):</span>
             <input type="number" id="budget-amount" class="input-box" value="20.00" step="1.00" style="width: 85px;">
@@ -471,844 +503,12 @@
       <div class="recipe-grid">
         <div class="pump-box eth">
           <span class="pump-title">Add E85 Fuel</span>
-          <div class="pump-val" id="res-add-e85">0.0 <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span></div>
+          <div class="pump-val" id="res-add-e85">0.0 <span style="font-size:0.75rem;" class="unit-text">GAL</span></div>
           <span class="pump-sub" id="res-cost-e85">$0.00</span>
         </div>
         <div class="pump-box gas">
           <span class="pump-title">Add Pump Gas</span>
-          <div class="pump-val" id="res-add-93">0.0 <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span></div>
-          <span class="pump-sub" id="res-cost-93">$0.00</span>
-        </div>
-      </div>
-
-      <button class="btn-copy" id="btn-copy" onclick="copyRecipe()">
-        📋 Copy Recipe to Clipboard
-      </button>
-    </div>
-  </div>
-
-  <script>
-    let activeUnit = 'gal';
-    let currentAccent = '#ff6600';
-    let currentGlow = 'rgba(255,102,0,0.35)';
-    let fillStrategy = 'brim';
-
-    function toggleSettings() {
-      const card = document.getElementById('settings-card');
-      card.style.display = card.style.display === 'none' ? 'flex' : 'none';
-    }
-
-    function setSettingsTab(tab) {
-      document.getElementById('stab-tuning').classList.toggle('active', tab === 'tuning');
-      document.getElementById('stab-about').classList.toggle('active', tab === 'about');
-      document.getElementById('settings-tab-tuning').style.display = tab === 'tuning' ? 'flex' : 'none';
-      document.getElementById('settings-tab-about').style.display = tab === 'about' ? 'flex' : 'none';
-    }
-
-    function getLuminance(hex) {
-      const c = hex.replace('#', '');
-      const r = parseInt(c.substring(0, 2), 16) / 255;
-      const g = parseInt(c.substring(2, 4), 16) / 255;
-      const b = parseInt(c.substring(4, 6), 16) / 255;
-      const a = [r, g, b].map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
-      return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-    }
-
-    function setTheme(color, glow) {
-      currentAccent = color;
-      currentGlow = glow;
-
-      const lum = getLuminance(color);
-      const contrastText = lum < 0.35 ? '#ffffff' : '#000000';
-      const contrastBorder = lum < 0.2 ? '#666666' : '#ffffff';
-
-      document.documentElement.style.setProperty('--accent', color);
-      document.documentElement.style.setProperty('--accent-glow', glow);
-      document.documentElement.style.setProperty('--accent-contrast', contrastText);
-      document.documentElement.style.setProperty('--accent-border', contrastBorder);
-      
-      const meta = document.getElementById('meta-theme');
-      if (meta) meta.setAttribute('content', color);
-
-      document.querySelectorAll('.color-swatch').forEach(sw => {
-        sw.classList.toggle('active', sw.style.backgroundColor === color || rgbToHex(sw.style.backgroundColor) === color.toLowerCase());
-      });
-
-      const picker = document.getElementById('custom-color-picker');
-      if (picker) picker.value = color;
-
-      saveState();
-    }
-
-    function onCustomColorPick(hex) {
-      const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
-      const glow = `rgba(${r},${g},${b},0.35)`;
-      setTheme(hex, glow);
-    }
-
-    function rgbToHex(rgb) {
-      if (!rgb || rgb.startsWith('#')) return rgb;
-      const rgbVals = rgb.match(/\d+/g);
-      if (!rgbVals || rgbVals.length < 3) return rgb;
-      return '#' + rgbVals.slice(0,3).map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
-    }
-
-    function setUnit(u) {
-      if (activeUnit === u) return;
-      const prev = activeUnit; activeUnit = u;
-      document.getElementById('unit-gal').classList.toggle('active', u === 'gal');
-      document.getElementById('unit-l').classList.toggle('active', u === 'l');
-      const capInput = document.getElementById('tank-cap');
-      let cap = parseFloat(capInput.value) || 0;
-      cap = (u === 'l' && prev === 'gal') ? cap * 3.78541 : (u === 'gal' && prev === 'l') ? cap / 3.78541 : cap;
-      capInput.value = (Math.round(cap * 10) / 10).toFixed(1);
-
-      const partInput = document.getElementById('custom-fill-val');
-      let pVal = parseFloat(partInput.value) || 0;
-      pVal = (u === 'l' && prev === 'gal') ? pVal * 3.78541 : (u === 'gal' && prev === 'l') ? pVal / 3.78541 : pVal;
-      partInput.value = (Math.round(pVal * 10) / 10).toFixed(1);
-
-      document.querySelectorAll('.unit-text').forEach(el => el.textContent = u.toUpperCase());
-      document.getElementById('calc-vol-unit').textContent = u.toUpperCase();
-      document.getElementById('unit-sub').textContent = `Total volume in ${u.toUpperCase()}`;
-      calculate();
-    }
-
-    function setFillStrategy(strat) {
-      fillStrategy = strat;
-      document.getElementById('fillmode-brim').classList.toggle('active', strat === 'brim');
-      document.getElementById('fillmode-part').classList.toggle('active', strat === 'part');
-      document.getElementById('fillmode-budget').classList.toggle('active', strat === 'budget');
-
-      document.getElementById('custom-fill-row').style.display = strat === 'part' ? 'flex' : 'none';
-      document.getElementById('budget-fill-container').style.display = strat === 'budget' ? 'flex' : 'none';
-
-      const headMap = { brim: 'FULL TANK', part: 'CUSTOM VOL', budget: 'BUDGET FILL' };
-      document.getElementById('res-fill-head').textContent = headMap[strat];
-      calculate();
-    }
-
-    function applyVehiclePreset() {
-      const select = document.getElementById('vehicle-select');
-      if (select.value === 'custom') return;
-      let cap = parseFloat(select.value);
-      if (activeUnit === 'l') cap = cap * 3.78541;
-      document.getElementById('tank-cap').value = (Math.round(cap * 10) / 10).toFixed(1);
-      calculate();
-    }
-
-    function onFuelPctSlide() {
-      const pct = document.getElementById('fuel-pct-slider').value;
-      const tags = {0:' (Empty)', 25:' (1/4)', 50:' (1/2)', 75:' (3/4)'};
-      document.getElementById('pct-label').textContent = `Fuel Gauge: ${pct}%${tags[pct] || ''}`;
-      
-      document.querySelectorAll('#f-25, #f-50, #f-75').forEach(b => b.classList.remove('active'));
-      if (pct == 25) document.getElementById('f-25').classList.add('active');
-      if (pct == 50) document.getElementById('f-50').classList.add('active');
-      if (pct == 75) document.getElementById('f-75').classList.add('active');
-
-      calculate();
-    }
-
-    function setQuickLevel(pct) { 
-      document.getElementById('fuel-pct-slider').value = pct; 
-      onFuelPctSlide(); 
-    }
-
-    function onTankEthSlide() {
-      const val = document.getElementById('tank-eth-slider').value;
-      document.getElementById('tank-eth-val').value = val;
-      document.getElementById('tank-eth-label').textContent = `Current: E${val} (Pump Gas)`;
-      calculate();
-    }
-
-    function onTankEthInput() {
-      const val = Math.min(100, Math.max(0, document.getElementById('tank-eth-val').value || 0));
-      document.getElementById('tank-eth-slider').value = val;
-      document.getElementById('tank-eth-label').textContent = `Current: E${val} (Pump Gas)`;
-      calculate();
-    }
-
-    function setQuickEth(val, id) {
-      document.getElementById('tank-eth-slider').value = val;
-      document.getElementById('tank-eth-val').value = val;
-      document.getElementById('tank-eth-label').textContent = `Current: E${val} (Pump Gas)`;
-      document.querySelectorAll('#p-e10,#p-e30,#p-e40,#p-e50').forEach(b => b.classList.remove('active'));
-      if (id) document.getElementById(id).classList.add('active');
-      calculate();
-    }
-
-    function onTargetEthSlide() {
-      const val = document.getElementById('target-eth-slider').value;
-      document.getElementById('target-eth-val').value = val;
-      document.getElementById('target-eth-label').textContent = `Target: E${val}`;
-      calculate();
-    }
-
-    function onTargetEthInput() {
-      const val = Math.min(100, Math.max(10, document.getElementById('target-eth-val').value || 10));
-      document.getElementById('target-eth-slider').value = val;
-      document.getElementById('target-eth-label').textContent = `Target: E${val}`;
-      calculate();
-    }
-
-    function setQuickTarget(val, id) {
-      document.getElementById('target-eth-slider').value = val;
-      document.getElementById('target-eth-val').value = val;
-      document.getElementById('target-eth-label').textContent = `Target: E${val}`;
-      document.querySelectorAll('#t-e30,#t-e35,#t-e40,#t-e50').forEach(b => b.classList.remove('active'));
-      if (id) document.getElementById(id).classList.add('active');
-      calculate();
-    }
-
-    function copyRecipe() {
-      const e85Amt = document.getElementById('res-add-e85').textContent.trim();
-      const gasAmt = document.getElementById('res-add-93').textContent.trim();
-      const targetTxt = document.getElementById('res-target-badge').textContent;
-      const octTxt = document.getElementById('res-octane').textContent;
-      const textToCopy = `Krafty Blend: Add ${e85Amt} E85 + ${gasAmt} Pump Gas for ${targetTxt} (${octTxt})`;
-
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        const btn = document.getElementById('btn-copy');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '✅ Copied to Clipboard!';
-        setTimeout(() => btn.innerHTML = orig, 1800);
-      }).catch(err => {
-        console.error('Copy failed', err);
-      });
-    }
-
-    function saveState() {
-      const state = {
-        unit: activeUnit,
-        accent: currentAccent,
-        glow: currentGlow,
-        vehicle: document.getElementById('vehicle-select').value,
-        tankCap: document.getElementById('tank-cap').value,
-        targetEth: document.getElementById('target-eth-val').value,
-        specPumpGas: document.getElementById('spec-pump-gas-e').value,
-        specPumpE85: document.getElementById('spec-pump-e85-e').value,
-        specBaseOct: document.getElementById('spec-pump-gas-oct').value,
-        priceGas: document.getElementById('price-pump-gas').value,
-        priceE85: document.getElementById('price-pump-e85').value,
-        budget: document.getElementById('budget-amount').value
-      };
-      localStorage.setItem('krafty_calc_state', JSON.stringify(state));
-    }
-
-    function loadState() {
-      const saved = localStorage.getItem('krafty_calc_state');
-      if (!saved) return;
-      try {
-        const s = JSON.parse(saved);
-        if (s.accent && s.glow) setTheme(s.accent, s.glow);
-        if (s.unit && s.unit !== activeUnit) setUnit(s.unit);
-        if (s.vehicle) document.getElementById('vehicle-select').value = s.vehicle;
-        if (s.tankCap) document.getElementById('tank-cap').value = s.tankCap;
-        if (s.targetEth) {
-          document.getElementById('target-eth-slider').value = s.targetEth;
-          document.getElementById('target-eth-val').value = s.targetEth;
-          document.getElementById('target-eth-label').textContent = `Target: E${s.targetEth}`;
-        }
-        if (s.specPumpGas) document.getElementById('spec-pump-gas-e').value = s.specPumpGas;
-        if (s.specPumpE85) document.getElementById('spec-pump-e85-e').value = s.specPumpE85;
-        if (s.specBaseOct) document.getElementById('spec-pump-gas-oct').value = s.specBaseOct;
-        if (s.priceGas) document.getElementById('price-pump-gas').value = s.priceGas;
-        if (s.priceE85) document.getElementById('price-pump-e85').value = s.priceE85;
-        if (s.budget) document.getElementById('budget-amount').value = s.budget;
-      } catch (err) {
-        console.error('Error loading saved state', err);
-      }
-    }
-
-    function calculate() {
-      const tankCapacity = parseFloat(document.getElementById('tank-cap').value) || 0;
-      const pct = parseFloat(document.getElementById('fuel-pct-slider').value) || 0;
-      const currentVol = (pct / 100) * tankCapacity;
-      
-      document.getElementById('fuel-pct-display').innerHTML = `${(Math.round(currentVol * 10) / 10).toFixed(1)} <span style="font-size:0.7rem;">${activeUnit.toUpperCase()}</span>`;
-
-      const curEth = (parseFloat(document.getElementById('tank-eth-val').value) || 0) / 100;
-      const tarEth = (parseFloat(document.getElementById('target-eth-val').value) || 0) / 100;
-      const gasEth = (parseFloat(document.getElementById('spec-pump-gas-e').value) || 10) / 100;
-      const e85Eth = (parseFloat(document.getElementById('spec-pump-e85-e').value) || 85) / 100;
-      const baseOct = parseFloat(document.getElementById('spec-pump-gas-oct').value) || 93;
-
-      const pGas = parseFloat(document.getElementById('price-pump-gas').value) || 3.69;
-      const pE85 = parseFloat(document.getElementById('price-pump-e85').value) || 2.89;
-      const budget = parseFloat(document.getElementById('budget-amount').value) || 20.00;
-
-      let addE85 = 0, addGas = 0;
-      let fillNeeded = 0;
-      let targetTotalVol = 0;
-      const availableSpace = Math.max(0, tankCapacity - currentVol);
-
-      if (fillStrategy === 'brim') {
-        fillNeeded = availableSpace;
-        targetTotalVol = tankCapacity;
-      } else if (fillStrategy === 'part') {
-        const customAdd = parseFloat(document.getElementById('custom-fill-val').value) || 0;
-        fillNeeded = Math.min(availableSpace, customAdd);
-        targetTotalVol = currentVol + fillNeeded;
-      } else if (fillStrategy === 'budget') {
-        const ethDiff = e85Eth - gasEth;
-        if (ethDiff > 0 && tarEth > gasEth) {
-          const ratio = (tarEth - gasEth) / (e85Eth - tarEth);
-          const costPerUnit = (ratio * pE85) + pGas;
-          if (costPerUnit > 0) {
-            let possibleGas = budget / costPerUnit;
-            let possibleE85 = possibleGas * ratio;
-
-            if (possibleGas + possibleE85 > availableSpace) {
-              const scale = availableSpace / (possibleGas + possibleE85);
-              possibleGas *= scale;
-              possibleE85 *= scale;
-            }
-
-            addGas = possibleGas;
-            addE85 = possibleE85;
-            fillNeeded = addGas + addE85;
-            targetTotalVol = currentVol + fillNeeded;
-          }
-        }
-      }
-
-      // Max Achievable Blend Calculation for Warning Banner
-      const alertBox = document.getElementById('overflow-alert');
-      const maxPossibleEthRatio = (targetTotalVol > 0) ? ((currentVol * curEth) + (fillNeeded * e85Eth)) / targetTotalVol : curEth;
-      const maxPossibleBlendPct = Math.round(maxPossibleEthRatio * 100);
-
-      if (tarEth > maxPossibleEthRatio + 0.005 && fillNeeded > 0) {
-        document.getElementById('alert-max-blend').textContent = `E${maxPossibleBlendPct}`;
-        alertBox.style.display = 'flex';
-      } else {
-        alertBox.style.display = 'none';
-      }
-
-      // Fill math for Full Tank and Custom Vol modes
-      if (fillStrategy !== 'budget' && fillNeeded > 0) {
-        const ethDiff = e85Eth - gasEth;
-        if (ethDiff > 0) {
-          addE85 = ((targetTotalVol * tarEth) - (currentVol * curEth) - (fillNeeded * gasEth)) / ethDiff;
-          addE85 = Math.max(0, Math.min(fillNeeded, addE85));
-          addGas = fillNeeded - addE85;
-        }
-      }
-
-      document.getElementById('res-target-badge').textContent = `E${Math.round(tarEth * 100)} BLEND`;
-      document.getElementById('res-add-e85').innerHTML = `${addE85.toFixed(2)} <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
-      document.getElementById('res-add-93').innerHTML = `${addGas.toFixed(2)} <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span>`;
-      
-      const costE85 = addE85 * pE85;
-      const costGas = addGas * pGas;
-      document.getElementById('res-cost-e85').textContent = `$${costE85.toFixed(2)} (@ $${pE85.toFixed(2)}/g)`;
-      document.getElementById('res-cost-93').textContent = `$${costGas.toFixed(2)} (@ $${pGas.toFixed(2)}/g)`;
-
-      const e85Octane = 105;
-      const estOct = baseOct + (((tarEth * 100) - (gasEth * 100)) / ((e85Eth * 100) - (gasEth * 100))) * (e85Octane - baseOct);
-      document.getElementById('res-octane').textContent = `~${Math.min(105, Math.max(baseOct, estOct)).toFixed(1)} OCT`;
-      
-      saveState();
-    }
-
-    document.getElementById('vehicle-select').addEventListener('change', applyVehiclePreset);
-    document.getElementById('tank-cap').addEventListener('input', () => { document.getElementById('vehicle-select').value = 'custom'; calculate(); });
-    document.getElementById('fuel-pct-slider').addEventListener('input', onFuelPctSlide);
-    document.getElementById('tank-eth-slider').addEventListener('input', onTankEthSlide);
-    document.getElementById('tank-eth-val').addEventListener('input', onTankEthInput);
-    document.getElementById('target-eth-slider').addEventListener('input', onTargetEthSlide);
-    document.getElementById('target-eth-val').addEventListener('input', onTargetEthInput);
-    document.getElementById('custom-fill-val').addEventListener('input', calculate);
-    document.getElementById('budget-amount').addEventListener('input', calculate);
-    document.getElementById('price-pump-gas').addEventListener('input', calculate);
-    document.getElementById('price-pump-e85').addEventListener('input', calculate);
-    document.getElementById('spec-pump-gas-e').addEventListener('input', calculate);
-    document.getElementById('spec-pump-e85-e').addEventListener('input', calculate);
-    document.getElementById('spec-pump-gas-oct').addEventListener('input', calculate);
-
-    loadState();
-    calculate();
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ethanol Blend Calculator</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-512.png">
-  <meta name="theme-color" content="#ff6600" id="meta-theme">
-  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
-  <style>
-    :root { 
-      --bg: #090b0e; 
-      --card-bg: #12151b; 
-      --border: #222730; 
-      --accent: #ff6600; 
-      --accent-glow: rgba(255,102,0,0.35); 
-      --accent-contrast: #000000;
-      --accent-border: transparent;
-      --pump93: #00d26a; 
-      --e85: #ff9900; 
-      --text: #f0f2f5; 
-      --muted: #8a94a6;
-      --alert: #ffaa00;
-      --info-bg: rgba(0, 136, 255, 0.12);
-      --info-border: #0088ff;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
-    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px; }
-    
-    header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 10px 4px; 
-      border-bottom: 1px solid var(--border); 
-    }
-    .header-titles { text-align: left; }
-    .brand { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
-    h1 { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.5px; }
-    
-    .settings-btn {
-      background: #0d0f13;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .settings-btn:hover { color: var(--accent); border-color: var(--accent); }
-    .settings-btn svg { width: 20px; height: 20px; fill: currentColor; }
-
-    .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .card-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .label-group { display: flex; flex-direction: column; gap: 2px; }
-    .label-main { font-size: 0.95rem; font-weight: 600; }
-    .label-sub { font-size: 0.75rem; color: var(--muted); }
-    
-    .input-box { width: 100px; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: #fff; font-size: 1.05rem; font-weight: 700; text-align: right; }
-    .input-box:focus, select.input-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-    select.input-select { width: 100%; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.9rem; font-weight: 600; }
-    
-    .pill-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-    .pill-btn { background: #0d0f13; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 0.75rem; font-weight: 700; padding: 8px 0; text-align: center; cursor: pointer; transition: all 0.15s; }
-    .pill-btn.active { 
-      background: var(--accent); 
-      color: var(--accent-contrast); 
-      border-color: var(--accent-border); 
-      box-shadow: 0 0 6px var(--accent-glow);
-    }
-    
-    .toggle-group { display: flex; background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 2px; }
-    .toggle-opt { flex: 1; text-align: center; padding: 6px 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--muted); transition: background 0.15s, color 0.15s; }
-    .toggle-opt.active { background: var(--card-bg); color: var(--text); }
-    
-    .slider { width: 100%; height: 32px; background: transparent; -webkit-appearance: none; appearance: none; margin: 4px 0; cursor: pointer; touch-action: pan-x; }
-    .slider::-webkit-slider-runnable-track { width: 100%; height: 8px; border-radius: 4px; background: #0d0f13; border: 1px solid var(--border); }
-    .slider::-moz-range-track { width: 100%; height: 8px; border-radius: 4px; background: #0d0f13; border: 1px solid var(--border); }
-    .slider::-webkit-slider-thumb { 
-      -webkit-appearance: none; 
-      width: 24px; 
-      height: 24px; 
-      border-radius: 50%; 
-      background: var(--accent); 
-      border: 2px solid var(--accent-border); 
-      margin-top: -8px; 
-      box-shadow: 0 0 8px var(--accent-glow); 
-    }
-    .slider::-moz-range-thumb { 
-      width: 24px; 
-      height: 24px; 
-      border-radius: 50%; 
-      background: var(--accent); 
-      border: 2px solid var(--accent-border); 
-      box-shadow: 0 0 8px var(--accent-glow); 
-    }
-    
-    .results-card { background: linear-gradient(180deg, #161b22 0%, #10141a 100%); border: 1px solid #30363d; border-top: 3px solid var(--accent); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .mix-display { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .mix-badge { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
-    .octane-est { font-size: 0.85rem; font-weight: 700; color: #00d26a; }
-    .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pump-box { background: #0d0f13; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; border-left: 4px solid var(--muted); }
-    .pump-box.gas { border-left-color: var(--pump93); }
-    .pump-box.eth { border-left-color: var(--e85); }
-    .pump-val { font-size: 1.25rem; font-weight: 900; color: #fff; }
-    .pump-sub { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
-    .pump-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-    
-    details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; }
-    summary { cursor: pointer; font-weight: 700; color: var(--muted); }
-
-    /* Custom Theme Palette Controls */
-    .color-swatches { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
-    .color-swatch {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
-      flex-shrink: 0;
-    }
-    .color-swatch:active { transform: scale(0.9); }
-    .color-swatch.active { border-color: #fff; transform: scale(1.1); }
-    
-    .custom-picker-btn {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
-      border: 2px solid var(--border);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .custom-picker-btn input[type="color"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      border: none;
-    }
-
-    .disclaimer-box {
-      margin-top: 10px;
-      background: #0d0f13;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .disclaimer-box strong { color: var(--text); }
-
-    .alert-banner {
-      background: rgba(255, 170, 0, 0.12);
-      border: 1px solid var(--alert);
-      color: #ffc247;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      line-height: 1.3;
-    }
-
-    .info-banner {
-      background: var(--info-bg);
-      border: 1px solid var(--info-border);
-      color: #70b8ff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      line-height: 1.3;
-    }
-
-    .btn-copy {
-      background: #0d0f13;
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s;
-      margin-top: 4px;
-    }
-    .btn-copy:active { background: var(--accent); color: var(--accent-contrast); }
-
-    /* About & Notes Tab Styling */
-    .tab-content { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
-    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; }
-    .feature-list li strong { color: var(--accent); }
-    .changelog-box { background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-    .changelog-ver { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 4px; display: flex; justify-content: space-between; }
-    .changelog-items { font-size: 0.75rem; color: var(--muted); padding-left: 16px; line-height: 1.4; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div class="header-titles">
-        <div class="brand">Krafty Performance</div>
-        <h1>E85 BLEND CALC</h1>
-      </div>
-      <button class="settings-btn" id="settings-toggle" title="Settings" onclick="toggleSettings()">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.45.17-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      </button>
-    </header>
-
-    <!-- Collapsible Settings Panel with Segmented Sub-Tabs -->
-    <div class="card" id="settings-card" style="display: none; border-color: var(--accent);">
-      <div class="toggle-group" style="margin-bottom: 4px;">
-        <div id="stab-tuning" class="toggle-opt active" onclick="setSettingsTab('tuning')">THEME & TUNING</div>
-        <div id="stab-about" class="toggle-opt" onclick="setSettingsTab('about')">ABOUT & NOTES</div>
-      </div>
-
-      <!-- Tab 1: Appearance & Tuning -->
-      <div id="settings-tab-tuning" class="tab-content">
-        <div class="card-title">Theme Accent Color</div>
-        <div class="color-swatches">
-          <div class="color-swatch active" style="background: #ff6600;" onclick="setTheme('#ff6600', 'rgba(255,102,0,0.35)')" title="Krafty Orange"></div>
-          <div class="color-swatch" style="background: #e60012;" onclick="setTheme('#e60012', 'rgba(230,0,18,0.35)')" title="Type R Red"></div>
-          <div class="color-swatch" style="background: #0088ff;" onclick="setTheme('#0088ff', 'rgba(0,136,255,0.35)')" title="Electric Blue"></div>
-          <div class="color-swatch" style="background: #00e676;" onclick="setTheme('#00e676', 'rgba(0,230,118,0.35)')" title="Acid Green"></div>
-          <div class="color-swatch" style="background: #a855f7;" onclick="setTheme('#a855f7', 'rgba(168,85,247,0.35)')" title="Stealth Purple"></div>
-          <div class="custom-picker-btn" title="Pick Any Custom Color">
-            <input type="color" id="custom-color-picker" onchange="onCustomColorPick(this.value)">
-          </div>
-        </div>
-
-        <div class="disclaimer-box">
-          <strong>⚠️ Tuning Disclaimer:</strong> Ethanol content at retail fuel stations and public pumps fluctuates seasonally (often ranging from E70 to E85). All volumes, octane numbers, and blend targets calculated by this software are estimates intended for reference only. Always confirm your actual fuel content with an ethanol test tube or in-line CAN sensor. The developers assume no liability for engine, fuel system, or mechanical damage resulting from fuel blends.
-        </div>
-      </div>
-
-      <!-- Tab 2: About & Release Notes -->
-      <div id="settings-tab-about" class="tab-content" style="display: none;">
-        <div class="card-title">Key Capabilities</div>
-        <ul class="feature-list">
-          <li>• <strong>Precision Ethanol Math:</strong> Live two-pump mixing solving for current tank level, seasonal pump variability, and target AKI.</li>
-          <li>• <strong>Flexible Fill Strategies:</strong> Seamless switching between filling the full tank, partial volume fills (track jugs), and fixed dollar budgets.</li>
-          <li>• <strong>Safety Overflow Alert:</strong> Real-time validation preventing impossible blends with immediate maximum achievable limits.</li>
-          <li>• <strong>Local-First Persistence:</strong> Runs completely offline with smart preferences memory.</li>
-        </ul>
-
-        <div class="card-title" style="margin-top: 6px;">Release Notes</div>
-        <div class="changelog-box">
-          <div class="changelog-ver"><span>v1.3.0</span> <span style="color:var(--muted); font-size:0.7rem;">Current</span></div>
-          <ul class="changelog-items">
-            <li>Added Fixed Dollar Budget fill mode ($20 Fill) with live price calculation and price variation notice.</li>
-            <li>Replaced brim labels with intuitive "Full Tank" designation.</li>
-            <li>Added Settings tabs with embedded About & Release Notes.</li>
-            <li>Smart launch state: fuel level and fill modes reset each session while vehicle and styling preferences stay saved.</li>
-          </ul>
-        </div>
-        <div class="changelog-box">
-          <div class="changelog-ver"><span>v1.2.0</span></div>
-          <ul class="changelog-items">
-            <li>Dynamic text contrast adaptation for dark & black custom accent colors.</li>
-            <li>Added partial custom gallon fill mode and unachievable blend safety alerts.</li>
-            <li>Clipboard recipe sharing and base AKI octane tuning override.</li>
-          </ul>
-        </div>
-        <div class="changelog-box">
-          <div class="changelog-ver"><span>v1.1.0</span></div>
-          <ul class="changelog-items">
-            <li>Universal "Pump Gas" naming alignment.</li>
-            <li>Added vehicle presets auto-applying tank capacity to manual inputs.</li>
-            <li>Offline caching via network-first service worker architecture.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Unit Toggle -->
-    <div class="toggle-group">
-      <div id="unit-gal" class="toggle-opt active" onclick="setUnit('gal')">GALLONS (US)</div>
-      <div id="unit-l" class="toggle-opt" onclick="setUnit('l')">LITERS</div>
-    </div>
-
-    <!-- Tank Preset Selection -->
-    <div class="card">
-      <div class="card-title">Select Tuner Vehicle</div>
-      <select id="vehicle-select" class="input-select">
-        <option value="custom">-- Custom Tank Capacity --</option>
-        <optgroup label="Honda / Acura">
-          <option value="12.4" selected>Civic Type R (FK8 / FL5) - 12.4 gal</option>
-          <option value="12.4">Civic Si (10th / 11th Gen) - 12.4 gal</option>
-          <option value="13.2">Acura Integra Type S (DE5) - 13.2 gal</option>
-        </optgroup>
-        <optgroup label="BMW & Toyota (B58 / S58)">
-          <option value="15.6">BMW M340i / M240i (G20/G42) - 15.6 gal</option>
-          <option value="13.7">Toyota GR Supra 3.0 (A90) - 13.7 gal</option>
-          <option value="15.6">BMW M3 / M4 (G80/G82) - 15.6 gal</option>
-        </optgroup>
-        <optgroup label="Volkswagen & Audi (EA888)">
-          <option value="14.5">VW Golf R / GTI (Mk7 / Mk8) - 14.5 gal</option>
-          <option value="14.5">Audi S3 / RS3 (8V / 8Y) - 14.5 gal</option>
-        </optgroup>
-        <optgroup label="Subaru & Toyota">
-          <option value="14.5">Subaru WRX (VA / VB) - 14.5 gal</option>
-          <option value="15.9">Subaru WRX STI (EJ25) - 15.9 gal</option>
-          <option value="13.2">Toyota GR86 / Subaru BRZ - 13.2 gal</option>
-          <option value="13.2">Toyota GR Corolla - 13.2 gal</option>
-        </optgroup>
-        <optgroup label="Ford & American Muscle">
-          <option value="12.4">Ford Focus RS / ST - 12.4 gal</option>
-          <option value="16.0">Ford Mustang EcoBoost / GT - 16.0 gal</option>
-        </optgroup>
-        <optgroup label="Hyundai N">
-          <option value="12.4">Elantra N / Veloster N - 12.4 gal</option>
-        </optgroup>
-      </select>
-    </div>
-
-    <!-- Tank Setup -->
-    <div class="card">
-      <div class="card-title">Tank Capacity</div>
-      <div class="row">
-        <div class="label-group"><span class="label-main">Full Tank Capacity</span><span class="label-sub" id="unit-sub">Total volume in GAL</span></div>
-        <input type="number" id="tank-cap" class="input-box" value="12.4" step="0.1">
-      </div>
-    </div>
-
-    <!-- Fuel In Tank Setup -->
-    <div class="card">
-      <div class="card-title">Current Fuel Level</div>
-      <div class="row">
-        <div class="label-group" style="flex: 1; margin-right: 8px;">
-          <span class="label-main" id="pct-label">Fuel Gauge: 25% (1/4)</span>
-          <input type="range" id="fuel-pct-slider" class="slider" min="0" max="100" value="25">
-        </div>
-        <div class="input-box" id="fuel-pct-display" style="width: auto;">3.1 <span style="font-size: 0.7rem;" id="calc-vol-unit">GAL</span></div>
-      </div>
-      <div class="pill-group">
-        <div class="pill-btn" onclick="setQuickLevel(0)">E (Empty)</div>
-        <div class="pill-btn active" id="f-25" onclick="setQuickLevel(25)">1/4 Tank</div>
-        <div class="pill-btn" id="f-50" onclick="setQuickLevel(50)">1/2 Tank</div>
-        <div class="pill-btn" id="f-75" onclick="setQuickLevel(75)">3/4 Tank</div>
-      </div>
-    </div>
-
-    <!-- Current Ethanol In Tank -->
-    <div class="card">
-      <div class="card-title">Current In-Tank Ethanol</div>
-      <div class="row">
-        <div class="label-group" style="flex: 1; margin-right: 8px;">
-          <span class="label-main" id="tank-eth-label">Current: E10 (Pump Gas)</span>
-          <input type="range" id="tank-eth-slider" class="slider" min="0" max="85" value="10">
-        </div>
-        <input type="number" id="tank-eth-val" class="input-box" value="10" min="0" max="100">
-      </div>
-      <div class="pill-group">
-        <div class="pill-btn active" id="p-e10" onclick="setQuickEth(10,'p-e10')">Pump Gas</div>
-        <div class="pill-btn" id="p-e30" onclick="setQuickEth(30,'p-e30')">Past E30</div>
-        <div class="pill-btn" id="p-e40" onclick="setQuickEth(40,'p-e40')">Past E40</div>
-        <div class="pill-btn" id="p-e50" onclick="setQuickEth(50,'p-e50')">Past E50</div>
-      </div>
-    </div>
-
-    <!-- Target Ethanol -->
-    <div class="card">
-      <div class="card-title">Target Blend</div>
-      <div class="row">
-        <div class="label-group" style="flex: 1; margin-right: 8px;">
-          <span class="label-main" id="target-eth-label">Target: E30</span>
-          <input type="range" id="target-eth-slider" class="slider" min="10" max="85" value="30">
-        </div>
-        <input type="number" id="target-eth-val" class="input-box" value="30" min="10" max="100">
-      </div>
-      <div class="pill-group">
-        <div class="pill-btn active" id="t-e30" onclick="setQuickTarget(30,'t-e30')">E30</div>
-        <div class="pill-btn" id="t-e35" onclick="setQuickTarget(35,'t-e35')">E35</div>
-        <div class="pill-btn" id="t-e40" onclick="setQuickTarget(40,'t-e40')">E40</div>
-        <div class="pill-btn" id="t-e50" onclick="setQuickTarget(50,'t-e50')">E50</div>
-      </div>
-    </div>
-
-    <!-- Advanced Pump Rating Drawer -->
-    <details>
-      <summary style="margin-bottom:8px;">Pump Station Specs & Octane</summary>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div class="row"><span class="label-main">Pump Gas Ethanol %</span><input type="number" id="spec-pump-gas-e" class="input-box" value="10"></div>
-        <div class="row"><span class="label-main">Pump E85 Actual Ethanol %</span><input type="number" id="spec-pump-e85-e" class="input-box" value="85"></div>
-        <div class="row"><span class="label-main">Base Pump Gas Octane (AKI)</span><input type="number" id="spec-pump-gas-oct" class="input-box" value="93"></div>
-      </div>
-    </details>
-
-    <!-- Calculation Results -->
-    <div class="results-card">
-      <div class="mix-display">
-        <div>
-          <div class="brand">TOTAL FILL REQUIRED</div>
-          <div class="mix-badge" id="res-target-badge">E30 BLEND</div>
-        </div>
-        <div style="text-align: right;">
-          <div class="octane-est" id="res-octane">~95.5 OCT</div>
-          <span class="label-sub" id="res-fill-head">FULL TANK</span>
-        </div>
-      </div>
-
-      <!-- Fill Mode Option: Full Tank vs Custom Vol vs Budget -->
-      <div class="row" style="padding: 2px 0;">
-        <span class="label-sub" style="font-weight: 700;">STRATEGY</span>
-        <div class="toggle-group" style="width: 250px;">
-          <div id="fillmode-brim" class="toggle-opt active" onclick="setFillStrategy('brim')">FULL TANK</div>
-          <div id="fillmode-part" class="toggle-opt" onclick="setFillStrategy('part')">CUSTOM VOL</div>
-          <div id="fillmode-budget" class="toggle-opt" onclick="setFillStrategy('budget')">$ BUDGET</div>
-        </div>
-      </div>
-
-      <!-- Custom Volume Input (Shown when in Custom Vol mode) -->
-      <div class="row" id="custom-fill-row" style="display: none; background: #0d0f13; padding: 8px 10px; border-radius: 8px;">
-        <span class="label-main" style="font-size: 0.85rem;">Volume to Add:</span>
-        <input type="number" id="custom-fill-val" class="input-box" value="5.0" step="0.5" style="width: 80px;">
-      </div>
-
-      <!-- Budget Mode Inputs & Notice Banner -->
-      <div id="budget-fill-container" style="display: none; flex-direction: column; gap: 8px;">
-        <div class="info-banner">
-          <span>ℹ️ Gas prices fluctuate daily. Verify current pump prices match before pumping.</span>
-        </div>
-        <div style="background: #0d0f13; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px;">
-          <div class="row">
-            <span class="label-main" style="font-size: 0.85rem;">Total Budget ($):</span>
-            <input type="number" id="budget-amount" class="input-box" value="20.00" step="1.00" style="width: 85px;">
-          </div>
-          <div class="row">
-            <span class="label-main" style="font-size: 0.85rem;">Pump Gas Price ($/gal):</span>
-            <input type="number" id="price-pump-gas" class="input-box" value="3.69" step="0.05" style="width: 85px;">
-          </div>
-          <div class="row">
-            <span class="label-main" style="font-size: 0.85rem;">E85 Price ($/gal):</span>
-            <input type="number" id="price-pump-e85" class="input-box" value="2.89" step="0.05" style="width: 85px;">
-          </div>
-        </div>
-      </div>
-
-      <!-- Warning Banner for Unachievable Blends -->
-      <div class="alert-banner" id="overflow-alert">
-        <span>⚠️ Target blend exceeds available tank volume. Max achievable right now is <strong id="alert-max-blend">E45</strong>.</span>
-      </div>
-
-      <div class="recipe-grid">
-        <div class="pump-box eth">
-          <span class="pump-title">Add E85 Fuel</span>
-          <div class="pump-val" id="res-add-e85">0.0 <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span></div>
-          <span class="pump-sub" id="res-cost-e85">$0.00</span>
-        </div>
-        <div class="pump-box gas">
-          <span class="pump-title">Add Pump Gas</span>
-          <div class="pump-val" id="res-add-93">0.0 <span style="font-size:0.75rem;" class="unit-text">${activeUnit.toUpperCase()}</span></div>
+          <div class="pump-val" id="res-add-93">0.0 <span style="font-size:0.75rem;" class="unit-text">GAL</span></div>
           <span class="pump-sub" id="res-cost-93">$0.00</span>
         </div>
       </div>
