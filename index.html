@@ -91,7 +91,8 @@
     details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; }
     summary { cursor: pointer; font-weight: 700; color: var(--muted); }
 
-    .color-swatches { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+    /* Custom Theme Palette Controls */
+    .color-swatches { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .color-swatch {
       width: 32px;
       height: 32px;
@@ -99,22 +100,48 @@
       border: 2px solid transparent;
       cursor: pointer;
       transition: transform 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
     .color-swatch:active { transform: scale(0.9); }
     .color-swatch.active { border-color: #fff; transform: scale(1.1); }
-    .color-picker-input {
+    
+    /* Dedicated Custom Picker Button */
+    .custom-picker-btn {
+      position: relative;
       width: 32px;
       height: 32px;
-      border: 2px solid var(--border);
       border-radius: 50%;
-      background: none;
+      background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+      border: 2px solid var(--border);
       cursor: pointer;
-      padding: 0;
-      overflow: hidden;
-      -webkit-appearance: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
-    .color-picker-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+    .custom-picker-btn input[type="color"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Disclaimer Box */
+    .disclaimer-box {
+      margin-top: 10px;
+      background: #0d0f13;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .disclaimer-box strong { color: var(--text); }
 
     /* Alert Banner */
     .alert-banner {
@@ -172,7 +199,16 @@
         <div class="color-swatch" style="background: #0088ff;" onclick="setTheme('#0088ff', 'rgba(0,136,255,0.35)')" title="Electric Blue"></div>
         <div class="color-swatch" style="background: #00e676;" onclick="setTheme('#00e676', 'rgba(0,230,118,0.35)')" title="Acid Green"></div>
         <div class="color-swatch" style="background: #a855f7;" onclick="setTheme('#a855f7', 'rgba(168,85,247,0.35)')" title="Stealth Purple"></div>
-        <input type="color" id="custom-color-picker" class="color-picker-input" value="#ff6600" title="Custom Hex Picker" onchange="onCustomColorPick(this.value)">
+        
+        <!-- Native Color Picker Trigger -->
+        <div class="custom-picker-btn" title="Pick Any Custom Color">
+          <input type="color" id="custom-color-picker" onchange="onCustomColorPick(this.value)">
+        </div>
+      </div>
+
+      <!-- Legal / Tuning Disclaimer -->
+      <div class="disclaimer-box">
+        <strong>⚠️ Tuning Disclaimer:</strong> Ethanol content at commercial pump stations fluctuates seasonally (often ranging from E70 to E85). All volumes, octane numbers, and blend targets calculated by this software are estimates intended for reference only. Always confirm your actual fuel content with an ethanol test tube or in-line CAN sensor. The developers assume no liability for engine, fuel system, or mechanical damage resulting from fuel blends.
       </div>
     </div>
 
