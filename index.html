@@ -210,54 +210,23 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
-    /* Fixed touch-responsive slider styling */
     .slider {
       width: 100%;
-      height: 28px;
-      background: transparent;
+      height: 8px;
+      border-radius: 4px;
+      background: #0d0f13;
       outline: none;
       -webkit-appearance: none;
-      appearance: none;
-      margin: 8px 0;
-      cursor: pointer;
-      touch-action: pan-x;
-    }
-
-    .slider::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 8px;
-      border-radius: 4px;
-      background: #0d0f13;
-      border: 1px solid var(--border);
-    }
-
-    .slider::-moz-range-track {
-      width: 100%;
-      height: 8px;
-      border-radius: 4px;
-      background: #0d0f13;
-      border: 1px solid var(--border);
     }
 
     .slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--accent);
-      border: 2px solid #ffffff;
-      margin-top: -9px;
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-
-    .slider::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 10px var(--accent-glow);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     .results-card {
@@ -421,7 +390,7 @@
       <div class="row" id="fuel-pct-row">
         <div class="label-group" style="flex: 1; margin-right: 12px;">
           <span class="label-main" id="pct-label">Fuel Gauge: 25% (1/4)</span>
-          <input type="range" id="fuel-pct-slider" class="slider" min="0" max="100" value="25" oninput="onFuelPctSlide()" onchange="onFuelPctSlide()">
+          <input type="range" id="fuel-pct-slider" class="slider" min="0" max="100" value="25" oninput="onFuelPctSlide()">
         </div>
         <div class="input-box" id="fuel-pct-display" style="width: auto; padding: 6px 12px;">3.1 <span style="font-size: 0.7rem;" id="calc-vol-unit">GAL</span></div>
       </div>
@@ -447,13 +416,13 @@
       <div class="card-title">Current In-Tank Ethanol</div>
       <div class="row">
         <div class="label-group" style="flex: 1; margin-right: 12px;">
-          <span class="label-main" id="tank-eth-label">Current: E10 (Pump Gas)</span>
-          <input type="range" id="tank-eth-slider" class="slider" min="0" max="85" value="10" oninput="onTankEthSlide()" onchange="onTankEthSlide()">
+          <span class="label-main" id="tank-eth-label">Current: E10 (Standard 93)</span>
+          <input type="range" id="tank-eth-slider" class="slider" min="0" max="85" value="10" oninput="onTankEthSlide()">
         </div>
         <input type="number" id="tank-eth-val" class="input-box" value="10" min="0" max="100" oninput="onTankEthInput()">
       </div>
       <div class="pill-group">
-        <div class="pill-btn active" id="p-e10" onclick="setQuickEth(10, 'p-e10')">Pump Gas</div>
+        <div class="pill-btn active" id="p-e10" onclick="setQuickEth(10, 'p-e10')">Pump 93</div>
         <div class="pill-btn" id="p-e30" onclick="setQuickEth(30, 'p-e30')">Past E30</div>
         <div class="pill-btn" id="p-e40" onclick="setQuickEth(40, 'p-e40')">Past E40</div>
         <div class="pill-btn" id="p-e50" onclick="setQuickEth(50, 'p-e50')">Past E50</div>
@@ -466,7 +435,7 @@
       <div class="row">
         <div class="label-group" style="flex: 1; margin-right: 12px;">
           <span class="label-main" id="target-eth-label">Target: E30</span>
-          <input type="range" id="target-eth-slider" class="slider" min="10" max="85" value="30" oninput="onTargetEthSlide()" onchange="onTargetEthSlide()">
+          <input type="range" id="target-eth-slider" class="slider" min="10" max="85" value="30" oninput="onTargetEthSlide()">
         </div>
         <input type="number" id="target-eth-val" class="input-box" value="30" min="10" max="100" oninput="onTargetEthInput()">
       </div>
@@ -483,7 +452,7 @@
       <summary>Pump Station Specs (Winter / Fluctuation)</summary>
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
         <div class="row">
-          <span class="label-main">Pump Gas Ethanol %</span>
+          <span class="label-main">Pump 93 Ethanol %</span>
           <input type="number" id="spec-pump-gas-e" class="input-box" value="10" oninput="calculate()">
         </div>
         <div class="row">
@@ -512,7 +481,7 @@
           <div class="pump-val" id="res-add-e85">0.0 <span style="font-size: 0.8rem;" class="unit-text">GAL</span></div>
         </div>
         <div class="pump-box gas">
-          <span class="pump-title">Add Pump Gas</span>
+          <span class="pump-title">Add 93 Octane</span>
           <div class="pump-val" id="res-add-93">0.0 <span style="font-size: 0.8rem;" class="unit-text">GAL</span></div>
         </div>
       </div>
@@ -632,4 +601,5 @@
     }
 
     function setQuickTarget(val, btnId) {
-      document
+      document.getElementById('target-eth-slider').value = val;
+      document.getElementById('targe
