@@ -6,36 +6,76 @@
   <title>Ethanol Blend Calculator</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-512.png">
-  <meta name="theme-color" content="#ff6600">
+  <meta name="theme-color" content="#ff6600" id="meta-theme">
   <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
   <style>
-    :root { --bg: #090b0e; --card-bg: #12151b; --border: #222730; --accent: #ff6600; --accent-glow: rgba(255,102,0,0.35); --pump93: #00d26a; --e85: #ff9900; --text: #f0f2f5; --muted: #8a94a6; }
+    :root { 
+      --bg: #090b0e; 
+      --card-bg: #12151b; 
+      --border: #222730; 
+      --accent: #ff6600; 
+      --accent-glow: rgba(255,102,0,0.35); 
+      --pump93: #00d26a; 
+      --e85: #ff9900; 
+      --text: #f0f2f5; 
+      --muted: #8a94a6; 
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
     .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px; }
-    header { text-align: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    
+    header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 10px 4px; 
+      border-bottom: 1px solid var(--border); 
+    }
+    .header-titles { text-align: left; }
     .brand { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
-    h1 { font-size: 1.5rem; font-weight: 900; letter-spacing: 0.5px; }
+    h1 { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.5px; }
+    
+    .settings-btn {
+      background: #0d0f13;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .settings-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .settings-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
     .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
     .card-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .label-group { display: flex; flex-direction: column; gap: 2px; }
     .label-main { font-size: 0.95rem; font-weight: 600; }
     .label-sub { font-size: 0.75rem; color: var(--muted); }
+    
     .input-box { width: 100px; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: #fff; font-size: 1.05rem; font-weight: 700; text-align: right; }
     .input-box:focus, select.input-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
     select.input-select { width: 100%; background: #0d0f13; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.9rem; font-weight: 600; }
+    
     .pill-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
     .pill-btn { background: #0d0f13; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 0.75rem; font-weight: 700; padding: 8px 0; text-align: center; cursor: pointer; }
     .pill-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    
     .toggle-group { display: flex; background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 2px; }
     .toggle-opt { flex: 1; text-align: center; padding: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--muted); }
     .toggle-opt.active { background: var(--card-bg); color: var(--text); }
+    
     .slider { width: 100%; height: 32px; background: transparent; -webkit-appearance: none; appearance: none; margin: 4px 0; cursor: pointer; touch-action: pan-x; }
     .slider::-webkit-slider-runnable-track { width: 100%; height: 8px; border-radius: 4px; background: #0d0f13; border: 1px solid var(--border); }
     .slider::-moz-range-track { width: 100%; height: 8px; border-radius: 4px; background: #0d0f13; border: 1px solid var(--border); }
     .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; margin-top: -8px; box-shadow: 0 0 8px var(--accent-glow); }
     .slider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 8px var(--accent-glow); }
+    
     .results-card { background: linear-gradient(180deg, #161b22 0%, #10141a 100%); border: 1px solid #30363d; border-top: 3px solid var(--accent); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     .mix-display { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .mix-badge { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
@@ -46,17 +86,55 @@
     .pump-box.eth { border-left-color: var(--e85); }
     .pump-val { font-size: 1.3rem; font-weight: 900; color: #fff; }
     .pump-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    
     details { background: #0d0f13; border-radius: 8px; border: 1px solid var(--border); padding: 8px 12px; font-size: 0.85rem; }
     summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+
+    /* Settings Theme Palette */
+    .color-swatches { display: flex; gap: 10px; margin-top: 6px; }
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .color-swatch:active { transform: scale(0.9); }
+    .color-swatch.active { border-color: #fff; transform: scale(1.1); }
   </style>
 </head>
 <body>
   <div class="container">
-    <header><div class="brand">Krafty Performance</div><h1>E85 BLEND CALC</h1></header>
+    <header>
+      <div class="header-titles">
+        <div class="brand">Krafty Performance</div>
+        <h1>E85 BLEND CALC</h1>
+      </div>
+      <button class="settings-btn" id="settings-toggle" title="Settings" onclick="toggleSettings()">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.45.17-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </button>
+    </header>
+
+    <!-- Collapsible Settings Panel -->
+    <div class="card" id="settings-card" style="display: none; border-color: var(--accent);">
+      <div class="card-title">Theme Accent Color</div>
+      <div class="color-swatches">
+        <div class="color-swatch active" style="background: #ff6600;" onclick="setTheme('#ff6600', 'rgba(255,102,0,0.35)')" title="Krafty Orange"></div>
+        <div class="color-swatch" style="background: #e60012;" onclick="setTheme('#e60012', 'rgba(230,0,18,0.35)')" title="Type R Red"></div>
+        <div class="color-swatch" style="background: #0088ff;" onclick="setTheme('#0088ff', 'rgba(0,136,255,0.35)')" title="Electric Blue"></div>
+        <div class="color-swatch" style="background: #00e676;" onclick="setTheme('#00e676', 'rgba(0,230,118,0.35)')" title="Acid Green"></div>
+        <div class="color-swatch" style="background: #a855f7;" onclick="setTheme('#a855f7', 'rgba(168,85,247,0.35)')" title="Stealth Purple"></div>
+      </div>
+    </div>
+
+    <!-- Unit Toggle -->
     <div class="toggle-group">
       <div id="unit-gal" class="toggle-opt active" onclick="setUnit('gal')">GALLONS (US)</div>
       <div id="unit-l" class="toggle-opt" onclick="setUnit('l')">LITERS</div>
     </div>
+
+    <!-- Tank Preset Selection -->
     <div class="card">
       <div class="card-title">Select Tuner Vehicle</div>
       <select id="vehicle-select" class="input-select">
@@ -90,6 +168,8 @@
         </optgroup>
       </select>
     </div>
+
+    <!-- Tank Setup -->
     <div class="card">
       <div class="card-title">Tank Capacity</div>
       <div class="row">
@@ -97,6 +177,8 @@
         <input type="number" id="tank-cap" class="input-box" value="12.4" step="0.1">
       </div>
     </div>
+
+    <!-- Fuel In Tank Setup -->
     <div class="card">
       <div class="card-title">Current Fuel Level</div>
       <div class="row">
@@ -113,6 +195,8 @@
         <div class="pill-btn" onclick="setQuickLevel(75)">3/4 Tank</div>
       </div>
     </div>
+
+    <!-- Current Ethanol In Tank -->
     <div class="card">
       <div class="card-title">Current In-Tank Ethanol</div>
       <div class="row">
@@ -129,6 +213,8 @@
         <div class="pill-btn" id="p-e50" onclick="setQuickEth(50,'p-e50')">Past E50</div>
       </div>
     </div>
+
+    <!-- Target Ethanol -->
     <div class="card">
       <div class="card-title">Target Blend</div>
       <div class="row">
@@ -145,6 +231,8 @@
         <div class="pill-btn" id="t-e50" onclick="setQuickTarget(50,'t-e50')">E50</div>
       </div>
     </div>
+
+    <!-- Advanced Pump Rating Drawer -->
     <details>
       <summary style="margin-bottom:8px;">Pump Station Specs (Winter / Fluctuation)</summary>
       <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -152,6 +240,8 @@
         <div class="row"><span class="label-main">Pump E85 Actual Ethanol %</span><input type="number" id="spec-pump-e85-e" class="input-box" value="85"></div>
       </div>
     </details>
+
+    <!-- Calculation Results -->
     <div class="results-card">
       <div class="mix-display">
         <div><div class="brand">TOTAL FILL REQUIRED</div><div class="mix-badge" id="res-target-badge">E30 BLEND</div></div>
@@ -166,6 +256,36 @@
 
   <script>
     let activeUnit = 'gal';
+    let currentAccent = '#ff6600';
+    let currentGlow = 'rgba(255,102,0,0.35)';
+
+    function toggleSettings() {
+      const card = document.getElementById('settings-card');
+      card.style.display = card.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function setTheme(color, glow) {
+      currentAccent = color;
+      currentGlow = glow;
+      document.documentElement.style.setProperty('--accent', color);
+      document.documentElement.style.setProperty('--accent-glow', glow);
+      
+      const meta = document.getElementById('meta-theme');
+      if (meta) meta.setAttribute('content', color);
+
+      document.querySelectorAll('.color-swatch').forEach(sw => {
+        sw.classList.toggle('active', sw.style.backgroundColor === color || rgbToHex(sw.style.backgroundColor) === color.toLowerCase());
+      });
+
+      saveState();
+    }
+
+    function rgbToHex(rgb) {
+      if (!rgb || rgb.startsWith('#')) return rgb;
+      const rgbVals = rgb.match(/\d+/g);
+      if (!rgbVals || rgbVals.length < 3) return rgb;
+      return '#' + rgbVals.slice(0,3).map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
+    }
 
     function setUnit(u) {
       if (activeUnit === u) return;
@@ -249,6 +369,8 @@
     function saveState() {
       const state = {
         unit: activeUnit,
+        accent: currentAccent,
+        glow: currentGlow,
         vehicle: document.getElementById('vehicle-select').value,
         tankCap: document.getElementById('tank-cap').value,
         fuelPct: document.getElementById('fuel-pct-slider').value,
@@ -265,6 +387,7 @@
       if (!saved) return;
       try {
         const s = JSON.parse(saved);
+        if (s.accent && s.glow) setTheme(s.accent, s.glow);
         if (s.unit && s.unit !== activeUnit) setUnit(s.unit);
         if (s.vehicle) document.getElementById('vehicle-select').value = s.vehicle;
         if (s.tankCap) document.getElementById('tank-cap').value = s.tankCap;
