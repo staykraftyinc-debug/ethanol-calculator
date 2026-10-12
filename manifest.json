@@ -1,7 +1,9 @@
 {
+  "id": "/ethanol-calc/",
   "name": "Ethanol Blend Calculator",
   "short_name": "E85 Calc",
-  "start_url": "./index.html",
+  "start_url": "/ethanol-calc/index.html",
+  "scope": "/ethanol-calc/",
   "display": "standalone",
   "background_color": "#0d0f12",
   "theme_color": "#ff6600",
