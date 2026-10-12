@@ -266,7 +266,7 @@
       </button>
     </header>
 
-    <!-- Collapsible Settings Panel -->
+    <!-- Settings Panel -->
     <div class="card" id="settings-card" style="display: none; border-color: var(--accent);">
       <div class="toggle-group" style="margin-bottom: 4px;">
         <div id="stab-tuning" class="toggle-opt active" onclick="setSettingsTab('tuning')">THEME & TUNING</div>
@@ -294,38 +294,38 @@
 
       <!-- Tab 2: About & Release Notes -->
       <div id="settings-tab-about" class="tab-content" style="display: none;">
-        <div class="card-title">Key Capabilities</div>
+        <div class="card-title">How It Works</div>
         <ul class="feature-list">
-          <li>• <strong>Precision Ethanol Math:</strong> Live two-pump mixing solving for current tank level, seasonal pump variability, and target AKI.</li>
-          <li>• <strong>Flexible Fill Strategies:</strong> Seamless switching between filling the full tank, partial volume fills (track jugs), and fixed dollar budgets.</li>
-          <li>• <strong>Safety Overflow Alert:</strong> Real-time validation preventing impossible blends with immediate maximum achievable limits.</li>
-          <li>• <strong>Local-First Persistence:</strong> Runs completely offline with smart preferences memory.</li>
+          <li>• <strong>Dial In Your Blend:</strong> Figures out the exact mix of pump gas and E85 needed based on what’s left in your tank, local pump test percentages, and your base pump octane.</li>
+          <li>• <strong>Fill Any Way You Need:</strong> Top off a full tank, mix a few gallons for a track jug, or put in an exact dollar amount and let the app split your cash between both pumps.</li>
+          <li>• <strong>No Guesswork or Overfills:</strong> Alerts you right away if a target blend is physically impossible with the room you have left in the tank, showing your actual ceiling.</li>
+          <li>• <strong>Ready at the Pump:</strong> Keeps your car setup, tank size, local fuel prices, and theme color saved on your phone so you can punch in numbers and start pumping immediately.</li>
         </ul>
 
-        <div class="card-title" style="margin-top: 6px;">Release Notes</div>
+        <div class="card-title" style="margin-top: 6px;">Updates</div>
         <div class="changelog-box">
           <div class="changelog-ver"><span>v1.3.0</span> <span style="color:var(--muted); font-size:0.7rem;">Current</span></div>
           <ul class="changelog-items">
-            <li>Added Fixed Dollar Budget fill mode ($20 Fill) with live price calculation and price variation notice.</li>
-            <li>Replaced brim labels with intuitive "Full Tank" designation.</li>
-            <li>Added Settings tabs with embedded About & Release Notes.</li>
-            <li>Smart launch state: fuel level and fill modes reset each session while vehicle and styling preferences stay saved.</li>
+            <li>Added Budget Fill mode with live price splits and gallon calculations.</li>
+            <li>Swapped brim labels to standard Full Tank wording.</li>
+            <li>Fuel level now starts clean on launch while vehicle specs, prices, and themes stay saved.</li>
+            <li>Added this info and updates drawer.</li>
           </ul>
         </div>
         <div class="changelog-box">
           <div class="changelog-ver"><span>v1.2.0</span></div>
           <ul class="changelog-items">
-            <li>Dynamic text contrast adaptation for dark & black custom accent colors.</li>
-            <li>Added partial custom gallon fill mode and unachievable blend safety alerts.</li>
-            <li>Clipboard recipe sharing and base AKI octane tuning override.</li>
+            <li>Fixed text contrast so dark and black custom themes stay easy to read.</li>
+            <li>Added custom volume fills and tank limit alerts.</li>
+            <li>Added clipboard recipe copying and base 91/93 octane adjustment.</li>
           </ul>
         </div>
         <div class="changelog-box">
           <div class="changelog-ver"><span>v1.1.0</span></div>
           <ul class="changelog-items">
-            <li>Universal "Pump Gas" naming alignment.</li>
-            <li>Added vehicle presets auto-applying tank capacity to manual inputs.</li>
-            <li>Offline caching via network-first service worker architecture.</li>
+            <li>Added vehicle presets that auto-fill tank capacities.</li>
+            <li>Cleaned up pump gas terminology across the app.</li>
+            <li>Added full offline support so it runs anywhere without cell reception.</li>
           </ul>
         </div>
       </div>
@@ -337,7 +337,7 @@
       <div id="unit-l" class="toggle-opt" onclick="setUnit('l')">LITERS</div>
     </div>
 
-    <!-- Tank Preset Selection -->
+    <!-- Vehicle Selection -->
     <div class="card">
       <div class="card-title">Select Tuner Vehicle</div>
       <select id="vehicle-select" class="input-select">
@@ -372,7 +372,7 @@
       </select>
     </div>
 
-    <!-- Tank Setup -->
+    <!-- Tank Capacity -->
     <div class="card">
       <div class="card-title">Tank Capacity</div>
       <div class="row">
@@ -381,7 +381,7 @@
       </div>
     </div>
 
-    <!-- Fuel In Tank Setup -->
+    <!-- Current Fuel Level -->
     <div class="card">
       <div class="card-title">Current Fuel Level</div>
       <div class="row">
@@ -435,7 +435,7 @@
       </div>
     </div>
 
-    <!-- Advanced Pump Rating Drawer -->
+    <!-- Pump Specs Drawer -->
     <details>
       <summary style="margin-bottom:8px;">Pump Station Specs & Octane</summary>
       <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -445,7 +445,7 @@
       </div>
     </details>
 
-    <!-- Calculation Results -->
+    <!-- Results Card -->
     <div class="results-card">
       <div class="mix-display">
         <div>
@@ -458,7 +458,7 @@
         </div>
       </div>
 
-      <!-- Fill Mode Option: Auto-Flex Strategy Bar -->
+      <!-- Strategy Toggle -->
       <div class="row" style="padding: 2px 0; gap: 8px;">
         <span class="label-sub" style="font-weight: 700; flex-shrink: 0;">STRATEGY</span>
         <div class="toggle-group" style="flex: 1;">
@@ -474,7 +474,7 @@
         <input type="number" id="custom-fill-val" class="input-box" value="5.0" step="0.5" style="width: 80px;">
       </div>
 
-      <!-- Budget Mode Inputs & Notice Banner -->
+      <!-- Budget Mode Inputs -->
       <div id="budget-fill-container" style="display: none; flex-direction: column; gap: 8px; width: 100%;">
         <div class="info-banner">
           <span>ℹ️ Gas prices fluctuate daily. Verify current pump prices match before pumping.</span>
@@ -495,7 +495,7 @@
         </div>
       </div>
 
-      <!-- Warning Banner for Unachievable Blends -->
+      <!-- Overflow Alert Banner -->
       <div class="alert-banner" id="overflow-alert">
         <span>⚠️ Target blend exceeds available tank volume. Max achievable right now is <strong id="alert-max-blend">E45</strong>.</span>
       </div>
