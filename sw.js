@@ -1,4 +1,4 @@
-const CACHE_NAME = 'e85-calc-v3';
+const CACHE_NAME = 'e85-calc-12';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
